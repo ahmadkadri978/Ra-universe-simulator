@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .offline-build/
+.phase2-build/
 coverage/
 .vite/
 *.tsbuildinfo

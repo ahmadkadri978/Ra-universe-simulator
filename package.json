@@ -1,6 +1,6 @@
 {
   "name": "law-of-one-ontology-simulator",
-  "version": "0.5.0-phase1",
+  "version": "0.6.0-phase2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,10 +11,14 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "typecheck:domain": "tsc -p tsconfig.domain.json --noEmit",
-    "build:domain:offline": "rm -rf .offline-build && tsc -p tsconfig.domain.json",
+    "build:domain:offline": "node -e \"require('node:fs').rmSync('.offline-build', { recursive: true, force: true })\" && tsc -p tsconfig.domain.json",
     "test:domain:offline": "npm run build:domain:offline && node tests/domain.test.mjs",
     "verify:architecture": "node scripts/verify-architecture.mjs",
-    "verify:phase1": "npm run typecheck:domain && npm run test:domain:offline && npm run verify:architecture"
+    "verify:phase1": "npm run typecheck:domain && npm run test:domain:offline && npm run verify:architecture",
+    "build:phase2-logic:offline": "node -e \"require('node:fs').rmSync('.phase2-build', { recursive: true, force: true })\" && tsc -p tsconfig.phase2-logic.json",
+    "test:phase2:offline": "npm run build:phase2-logic:offline && node tests/phase2-navigation.test.mjs",
+    "verify:phase2:structure": "node scripts/verify-phase2.mjs",
+    "verify:phase2": "npm run verify:phase1 && npm run test:phase2:offline && npm run verify:phase2:structure"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",

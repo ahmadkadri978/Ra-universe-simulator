@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "rootDir": "src",
+    "outDir": ".phase2-build",
+    "declaration": false,
+    "sourceMap": false,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/sources/types.ts",
+    "src/domain/ontology/types.ts",
+    "src/visual/navigation/types.ts",
+    "src/visual/navigation/universeGraph.ts",
+    "src/visual/navigation/navigationLogic.ts"
+  ]
+}
