@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#04070c" />
+  <meta name="description" content="Cinematic WebGL visualization of the ontology described in The Ra Contact / Law of One." />
+  <title>Law of One — Visual Ontology Simulator</title>
+  <style>
+:root{
+  --bg:#04070c;--panel:rgba(7,11,18,.72);--panel2:rgba(10,16,25,.88);--line:rgba(202,221,255,.105);
+  --text:#e9edf4;--muted:#8792a5;--faint:#5e6879;--gold:#e7c983;--cyan:#75bfff;--green:#69d5a5;--rose:#df7f93;--violet:#a783ff;
+  --safe-top:max(0px,env(safe-area-inset-top));--safe-bottom:max(0px,env(safe-area-inset-bottom));
+}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none}
+button,input{font:inherit}button{color:inherit}button{-webkit-tap-highlight-color:transparent}#app-shell{position:relative;width:100%;height:100%;height:100dvh;background:radial-gradient(circle at 50% 44%,rgba(55,92,140,.13),transparent 33%),radial-gradient(circle at 72% 62%,rgba(59,116,108,.07),transparent 28%),linear-gradient(145deg,#03050a,#08101a 52%,#03060b)}
+#gl-scene{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}#gl-scene:active{cursor:grabbing}.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 48%,transparent 25%,rgba(0,0,0,.08) 58%,rgba(0,0,0,.62) 100%)}
+.glass{background:linear-gradient(180deg,rgba(13,19,30,.77),rgba(6,10,17,.68));border:1px solid var(--line);box-shadow:0 18px 60px rgba(0,0,0,.20);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.rail{position:absolute;z-index:8;left:18px;top:18px;bottom:18px;width:190px;border-radius:22px;padding:18px 12px;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:11px;padding:7px 8px 21px;border-bottom:1px solid var(--line)}.brand b{display:block;font:500 14px Georgia,serif;letter-spacing:.02em}.brand span{display:block;color:var(--muted);font-size:7px;text-transform:uppercase;letter-spacing:.15em;margin-top:4px}.sigil{width:30px;height:30px;border:1px solid rgba(231,201,131,.24);border-radius:50%;position:relative;display:grid;place-content:center;box-shadow:0 0 25px rgba(231,201,131,.06)}.sigil i{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 11px var(--gold)}.sigil i:nth-child(1){transform:translate(-10px,-2px)}.sigil i:nth-child(2){transform:translate(-2px,-9px)}.sigil i:nth-child(3){transform:translate(5px,4px)}
+.nav{padding:14px 0;display:grid;gap:4px;overflow:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{border:0;background:transparent;border-radius:11px;padding:10px;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;color:#8b96a8;transition:.2s}.nav button em{font-style:normal;font-size:7px;color:#566175;letter-spacing:.1em;width:18px}.nav button span{font-size:9px;letter-spacing:.03em}.nav button:hover{background:rgba(255,255,255,.035);color:#d8deea}.nav button.active{background:linear-gradient(90deg,rgba(231,201,131,.10),rgba(255,255,255,.025));box-shadow:inset 2px 0 0 rgba(231,201,131,.7);color:#f0e6ca}.nav button.active em{color:var(--gold)}.rail-foot{margin-top:auto;display:grid;gap:7px}.primary,.quiet,.mini,.seg button{border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:rgba(255,255,255,.035);cursor:pointer;font-size:8px;letter-spacing:.04em}.primary{border-color:rgba(231,201,131,.28);background:rgba(231,201,131,.095);color:#f0dfb8}.quiet{color:#7f899b}.primary:hover,.quiet:hover,.mini:hover,.seg button:hover{background:rgba(255,255,255,.07)}
+.top{position:absolute;z-index:7;left:225px;right:18px;top:18px;height:62px;border-radius:18px;display:flex;align-items:center;justify-content:space-between;padding:0 17px;transition:.35s ease}.status{display:flex;align-items:center;gap:10px}.status>i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}.status span,.crumb span{font-size:6px;color:#687387;text-transform:uppercase;letter-spacing:.16em;display:block}.status b{font-size:10px;font-weight:600;display:block;margin-top:3px}.crumb{text-align:center}.crumb b{font:500 11px Georgia,serif;margin:0 8px}.crumb small{font-size:6px;color:#677186;margin-left:8px}.camera-help{font-size:7px;color:#697488;letter-spacing:.05em}
+.story{position:absolute;z-index:5;left:250px;top:116px;width:min(430px,36vw);pointer-events:none;transition:opacity .35s ease,transform .45s ease}.eyebrow{font-size:7px;letter-spacing:.22em;color:#7e8da4;text-transform:uppercase;margin-bottom:12px}.story h1{font:500 clamp(38px,4vw,66px)/.96 Georgia,serif;margin:0;letter-spacing:-.03em;text-shadow:0 12px 40px rgba(0,0,0,.48)}.story p{max-width:520px;font-size:10px;line-height:1.75;color:#8e99ab;margin:17px 0 12px}.pills{display:flex;flex-wrap:wrap;gap:6px}.pills span{font-size:7px;border:1px solid rgba(255,255,255,.09);border-radius:999px;padding:6px 8px;color:#8792a4;background:rgba(5,9,15,.45)}.pills b{font-weight:600;color:#d4d9e3;margin-left:4px}
+.control{position:absolute;z-index:9;right:18px;top:96px;bottom:62px;width:286px;border-radius:20px;padding:18px;overflow:auto;scrollbar-width:thin;scrollbar-color:#283142 transparent;transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .25s ease}.control::-webkit-scrollbar{width:4px}.control::-webkit-scrollbar-thumb{background:#283142;border-radius:4px}.panel-title{margin-bottom:14px}.panel-title span{display:block;font-size:7px;letter-spacing:.17em;color:#6f7b90;text-transform:uppercase}.panel-title h2{font:500 22px Georgia,serif;margin:5px 0 7px}.panel-title p{font-size:8px;line-height:1.6;color:#7b879a;margin:0}.sheet-handle{display:none}.section{padding:13px 0;border-top:1px solid var(--line)}.section:first-of-type{border-top:0}.section>label,.section-title{display:flex;justify-content:space-between;align-items:center;color:#8e99ac;font-size:8px;margin-bottom:9px}.section>label b{font-size:8px;color:#d0d6e1}.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.seg.three{grid-template-columns:repeat(3,1fr)}.seg button{padding:8px 5px;font-size:7px;color:#778296}.seg button.active{border-color:rgba(231,201,131,.33);color:#f0dba9;background:rgba(231,201,131,.09)}.stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.stepper button{height:33px;border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:9px;color:#687386;font-size:7px;cursor:pointer}.stepper button.active{background:rgba(231,201,131,.11);color:var(--gold);border-color:rgba(231,201,131,.3);box-shadow:0 0 20px rgba(231,201,131,.05)}.range{display:grid;grid-template-columns:1fr 31px;gap:10px;align-items:center;margin:9px 0}.range span{font-size:7px;color:#6f7b8e}.range input{width:100%;appearance:none;height:4px;background:linear-gradient(90deg,rgba(231,201,131,.65),rgba(117,191,255,.55));border-radius:99px;touch-action:pan-x}.range input::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#e6d49f;box-shadow:0 0 12px rgba(231,201,131,.5)}.range b{font-size:8px;text-align:right;color:#c9d0dc}.source-card{border:1px solid var(--line);border-radius:11px;padding:10px;margin:6px 0;background:rgba(255,255,255,.018);color:inherit}.source-card b{font-size:8px;display:block}.source-card span{font-size:7px;color:#738095;line-height:1.45;display:block;margin-top:5px}.source-card i{font-style:normal;font-size:6px;color:var(--green);text-transform:uppercase;letter-spacing:.12em}.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.metric{border:1px solid var(--line);border-radius:10px;padding:9px;background:rgba(255,255,255,.02)}.metric span{display:block;font-size:6px;color:#6c778a;text-transform:uppercase;letter-spacing:.1em}.metric b{font-size:13px;display:block;margin-top:4px}.callout{font-size:8px;line-height:1.6;color:#7e899c;border-left:2px solid rgba(231,201,131,.28);padding-left:10px;margin:8px 0}.density-list{display:grid;gap:4px}.density-list button{border:1px solid transparent;background:rgba(255,255,255,.02);border-radius:9px;padding:8px 9px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;color:#7e899b}.density-list button b{font-size:8px}.density-list button span{font-size:7px}.density-list button.active{border-color:rgba(255,255,255,.13);background:rgba(255,255,255,.05);color:#eef1f7}.decision{display:grid;gap:6px}.decision button{text-align:left;border:1px solid var(--line);border-radius:11px;padding:10px;background:rgba(255,255,255,.02);cursor:pointer;color:inherit}.decision button b{display:block;font-size:8px}.decision button span{display:block;font-size:7px;color:#758195;line-height:1.45;margin-top:4px}.decision button:hover{border-color:rgba(231,201,131,.28)}
+.scene-labels{position:absolute;inset:0;pointer-events:none;z-index:4}.scene-label{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;text-align:center;text-shadow:0 2px 12px #000;transition:opacity .2s}.scene-label b{display:block;font:500 10px Georgia,serif}.scene-label span{font-size:6px;color:#7e8a9e;letter-spacing:.09em;text-transform:uppercase}.scene-label.selected b{color:#f3dfaa}.scene-label.selected:after{content:"";display:block;width:1px;height:25px;background:linear-gradient(rgba(231,201,131,.5),transparent);margin:4px auto 0}
+.footer{position:absolute;z-index:6;left:225px;right:18px;bottom:18px;height:34px;border-radius:12px;padding:0 13px;display:flex;align-items:center;justify-content:space-between}.legend{display:flex;gap:12px;color:#6d788b;font-size:6px;text-transform:uppercase;letter-spacing:.08em}.legend span{display:flex;align-items:center;gap:5px}.dot{width:5px;height:5px;border-radius:50%;display:inline-block}.dot.source{background:var(--green)}.dot.synthesis{background:var(--cyan)}.dot.abstraction{background:var(--gold)}.source-line{font-size:7px;color:#737f92}
+.cinematic-nav{position:absolute;z-index:10;left:50%;bottom:66px;transform:translateX(-50%);width:min(460px,42vw);height:54px;border-radius:17px;padding:7px;display:grid;grid-template-columns:42px 1fr 42px;gap:8px;align-items:center}.scene-arrow{height:40px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.035);cursor:pointer;font-size:18px;color:#d6deea}.scene-arrow:hover{background:rgba(255,255,255,.08)}.scene-arrow:disabled{opacity:.25;cursor:default}.scene-progress-wrap{min-width:0}.scene-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}.scene-meta span{font-size:6px;color:#697589;letter-spacing:.14em}.scene-meta b{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#dce2ec;font-weight:600}.scene-dots{display:flex;justify-content:center;gap:5px}.scene-dots button{width:18px;height:3px;border:0;padding:0;border-radius:99px;background:rgba(255,255,255,.12);cursor:pointer;transition:.25s}.scene-dots button.active{width:34px;background:linear-gradient(90deg,var(--gold),var(--cyan));box-shadow:0 0 12px rgba(231,201,131,.18)}
+.mobile-controls-toggle{display:none}
+.scene-transition .story{opacity:.18;transform:translateY(5px)}
+@media(max-width:1100px){.rail{width:154px}.top,.footer{left:184px}.story{left:205px;width:39vw}.control{width:260px}.nav button span{font-size:8px}.brand b{font-size:12px}.brand span{font-size:6px}.cinematic-nav{width:390px}}
+
+/* Mobile is intentionally a different composition: full-screen scene, bottom-sheet controls, clear cinematic navigation. */
+@media(max-width:760px){
+  html,body{overscroll-behavior:none}.vignette{background:linear-gradient(180deg,rgba(1,3,6,.46) 0%,transparent 24%,transparent 66%,rgba(1,3,6,.74) 100%),radial-gradient(circle at 50% 46%,transparent 32%,rgba(0,0,0,.2) 76%,rgba(0,0,0,.55) 100%)}
+  .top{left:10px;right:10px;top:calc(8px + var(--safe-top));height:44px;border-radius:14px;padding:0 12px;background:rgba(6,10,17,.52)}.crumb,.camera-help{display:none}.status span{font-size:5px}.status b{font-size:9px}.status>i{width:6px;height:6px}
+  .story{left:16px;right:16px;top:calc(70px + var(--safe-top));width:auto;max-width:440px}.eyebrow{font-size:6px;margin-bottom:7px}.story h1{font-size:clamp(31px,10vw,48px);line-height:.98;max-width:86vw}.story p{font-size:9px;line-height:1.48;margin:10px 0 9px;max-width:76vw;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.pills{gap:4px}.pills span{font-size:6px;padding:5px 7px;background:rgba(4,8,14,.58)}
+  .rail{left:8px;right:8px;top:auto;bottom:calc(7px + var(--safe-bottom));width:auto;height:60px;border-radius:18px;padding:7px 8px;display:block;background:rgba(7,11,18,.84)}.brand,.rail-foot{display:none}.nav{display:flex;width:100%;height:100%;padding:0;overflow-x:auto;gap:4px;scroll-snap-type:x proximity}.nav button{min-width:49px;height:44px;padding:6px 8px;justify-content:center;flex-direction:column;gap:2px;scroll-snap-align:center}.nav button em{width:auto;font-size:7px}.nav button span{display:block;font-size:5px;max-width:48px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav button.active{box-shadow:inset 0 2px 0 rgba(231,201,131,.72)}
+  .footer{display:none}
+  .cinematic-nav{left:10px;right:10px;bottom:calc(75px + var(--safe-bottom));transform:none;width:auto;height:58px;border-radius:17px;grid-template-columns:44px 1fr 44px;background:rgba(6,10,17,.70)}.scene-arrow{height:42px;font-size:20px}.scene-meta b{font-size:8px}.scene-dots button{width:14px}.scene-dots button.active{width:28px}
+  .mobile-controls-toggle{display:block;position:absolute;z-index:12;right:14px;bottom:calc(142px + var(--safe-bottom));height:36px;padding:0 13px;border-radius:12px;color:#e9ddbd;font-size:8px;letter-spacing:.08em;text-transform:uppercase;border-color:rgba(231,201,131,.26);background:rgba(9,14,22,.78)}
+  .control{z-index:11;left:8px;right:8px;top:auto;bottom:calc(72px + var(--safe-bottom));width:auto;height:min(54vh,510px);border-radius:22px 22px 16px 16px;padding:13px 16px 22px;transform:translateY(calc(100% + 90px));opacity:0;pointer-events:none;background:linear-gradient(180deg,rgba(13,19,30,.96),rgba(5,9,15,.96));box-shadow:0 -22px 60px rgba(0,0,0,.45)}.control.open{transform:translateY(0);opacity:1;pointer-events:auto}.sheet-handle{display:block;width:42px;height:4px;border-radius:99px;background:rgba(255,255,255,.16);margin:0 auto 11px}.panel-title{margin-bottom:8px}.panel-title h2{font-size:20px}.panel-title p{font-size:8px}.section{padding:10px 0}.range input::-webkit-slider-thumb{width:18px;height:18px}.range{margin:8px 0}.density-list{grid-template-columns:1fr 1fr}.density-list button{padding:8px}.density-list button span{display:none}.source-card{padding:9px}
+  .scene-label b{font-size:11px}.scene-label span{display:none}.scene-label:not(.selected){opacity:.72}.scene-label.selected:after{height:17px}.scene-labels{z-index:3}
+}
+
+@media(max-width:430px){
+  .story p{max-width:88vw;-webkit-line-clamp:2}.story h1{font-size:36px}.cinematic-nav{height:54px;grid-template-columns:40px 1fr 40px}.scene-arrow{height:38px}.scene-meta{margin-bottom:5px}.nav button{min-width:47px}.mobile-controls-toggle{bottom:calc(136px + var(--safe-bottom))}
+}
+
+@media(max-width:760px) and (orientation:landscape){
+  .story{top:62px;max-width:46vw}.story p{display:none}.pills{display:none}.cinematic-nav{left:50%;right:auto;width:390px;transform:translateX(-50%);bottom:72px}.mobile-controls-toggle{right:18px;bottom:76px}.control{left:auto;right:8px;top:62px;bottom:72px;width:42vw;height:auto;border-radius:20px;transform:translateX(calc(100% + 20px))}.control.open{transform:translateX(0)}.rail{height:56px}.nav button{height:40px}
+}
+
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.001ms!important;animation-duration:.001ms!important}}
+
+</style>
+</head>
+<body>
+  <div id="app-shell">
+    <canvas id="gl-scene" aria-label="Interactive metaphysical visualization"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="labels" class="scene-labels" aria-hidden="true"></div>
+
+    <aside class="rail glass">
+      <div class="brand">
+        <div class="sigil"><i></i><i></i><i></i></div>
+        <div><b>The Law of One</b><span>Visual Ontology Simulator · Phase 4</span></div>
+      </div>
+      <nav id="nav" class="nav" aria-label="Simulation views">
+        <button data-view="cosmos" class="active"><em>01</em><span>Cosmos</span></button>
+        <button data-view="densities"><em>02</em><span>Densities</span></button>
+        <button data-view="entity"><em>03</em><span>Entity</span></button>
+        <button data-view="energy"><em>04</em><span>Energy</span></button>
+        <button data-view="timespace"><em>05</em><span>Time / Space</span></button>
+        <button data-view="social"><em>06</em><span>Social Memory</span></button>
+        <button data-view="planet"><em>07</em><span>Planet</span></button>
+        <button data-view="contact"><em>08</em><span>Contact</span></button>
+        <button data-view="sources"><em>09</em><span>Sources</span></button>
+      </nav>
+      <div class="rail-foot">
+        <button id="guided" class="primary">Run cinematic emergence</button>
+        <button id="resetCamera" class="quiet">Reset camera</button>
+      </div>
+    </aside>
+
+    <header class="top glass">
+      <div class="status"><i></i><div><span>Current view</span><b id="modeTitle">Cosmogenesis</b></div></div>
+      <div class="crumb"><span>SOURCE MODEL</span><b>The Ra Contact</b><small>Visualization ≠ scientific validation</small></div>
+      <div class="camera-help">drag to orbit · wheel/pinch to zoom · tap luminous nodes</div>
+    </header>
+
+    <section class="story" id="storyCard">
+      <div class="eyebrow" id="eyebrow">UNITY → DIFFERENTIATION → EXPERIENCE</div>
+      <h1 id="storyTitle">Intelligent Infinity</h1>
+      <p id="storyText">Begin with an undifferentiated field. Advance the emergence sequence to visualize Free Will, Logos/Love, Light, and structured creation.</p>
+      <div id="statusPills" class="pills"></div>
+    </section>
+
+    <button id="mobileControlsToggle" class="mobile-controls-toggle glass" aria-expanded="false" aria-controls="controlPanel">Controls</button>
+    <aside id="controlPanel" class="control glass" aria-label="Scene controls"></aside>
+
+    <div id="cinematicNav" class="cinematic-nav glass" aria-label="Cinematic scene navigation">
+      <button id="scenePrev" class="scene-arrow" aria-label="Previous scene">←</button>
+      <div class="scene-progress-wrap">
+        <div class="scene-meta"><span id="sceneCounter">01 / 05</span><b id="sceneCaption">Intelligent Infinity</b></div>
+        <div id="sceneDots" class="scene-dots"></div>
+      </div>
+      <button id="sceneNext" class="scene-arrow" aria-label="Next scene">→</button>
+    </div>
+
+    <footer class="footer glass">
+      <div class="legend"><span><i class="dot source"></i>source-backed</span><span><i class="dot synthesis"></i>synthesis</span><span><i class="dot abstraction"></i>simulation abstraction</span></div>
+      <div id="sourceLine" class="source-line">Sources: 13.7–13.9 · 15.21–15.22</div>
+    </footer>
+  </div>
+  <script>
+(() => {
+  'use strict';
+
+  // ---------------------------------------------------------------------------
+  // Canonical model references used by this visual prototype.
+  // ---------------------------------------------------------------------------
+  const SOURCES = [
+    {id:'13.7–13.9', concept:'Cosmogenesis', note:'Awareness, Logos/Love, creative energy and the regularization of dimensions/universes.'},
+    {id:'15.21–15.22', concept:'Primal distortions', note:'Free Will → Logos/Love → Light.'},
+    {id:'15.12', concept:'Energy centers', note:'Red through indigo centers and characteristic blockages.'},
+    {id:'17.32–17.34', concept:'Polarity / harvest', note:'51% STO and 95% STS third-density graduation thresholds.'},
+    {id:'6.14–6.16', concept:'Harvest / cycles', note:'Vibrational compatibility, line of light, ~25k cycles and ~75k master cycle.'},
+    {id:'21.9–21.10', concept:'Incarnation review', note:'Review, healing, and increasingly conscious incarnation selection.'},
+    {id:'36.1–36.7', concept:'Higher self', note:'Life programming and probability/possibility resources while preserving free will.'},
+    {id:'41.10', concept:'Early densities', note:'Elemental first density and the movement toward growth/awareness.'},
+    {id:'47.11–47.15', concept:'Death transition', note:'Indigo/form-maker activation and post-incarnative perspective.'},
+    {id:'16.32', concept:'Shared memory', note:'Social-memory data placed into a central thought complex available to all.'},
+    {id:'41.26', concept:'Ra social memory', note:'Social memory complex firmly cemented in fourth density; harmony accelerates later work.'},
+    {id:'7.1–7.9', concept:'Calling / Council', note:'Calling is balanced against free will/resistance; aid may be presented to the Council.'},
+    {id:'12.3–12.7', concept:'Quarantine', note:'Guardian quarantine and love/light boundary.'},
+    {id:'8.12–8.14', concept:'Orion orientation', note:'Confederation waits for calling; Orion orientation is described in terms of conquest/control.'},
+    {id:'7.15–7.17', concept:'Negative social memory', note:'Separation and spiritual entropy affect negative complexes.'}
+  ];
+
+  const DENSITIES = [
+    {n:1,name:'Being',sub:'elemental awareness',color:'#c55248',source:'41.10'},
+    {n:2,name:'Growth',sub:'movement · biological awareness',color:'#e28a43',source:'41.10 + synthesis'},
+    {n:3,name:'Choice',sub:'self-awareness · veil · polarity',color:'#dbc75c',source:'17.32–17.34 + synthesis'},
+    {n:4,name:'Love',sub:'understanding · shared transparency',color:'#61cf9b',source:'20.36 + synthesis'},
+    {n:5,name:'Wisdom',sub:'light · discernment',color:'#56aef0',source:'density synthesis'},
+    {n:6,name:'Unity',sub:'love / wisdom integration',color:'#7775ee',source:'1.1 · 36.1–36.7'},
+    {n:7,name:'Foreverness',sub:'gateway toward totality',color:'#b480ea',source:'density synthesis'},
+    {n:8,name:'Octave',sub:'completion · renewal',color:'#edf2ff',source:'density synthesis'}
+  ];
+
+  const CENTERS = [
+    {key:'red',name:'Red',theme:'foundation / survival',color:'#ce4b43'},
+    {key:'orange',name:'Orange',theme:'personal self',color:'#e68c42'},
+    {key:'yellow',name:'Yellow',theme:'social self / power',color:'#daca50'},
+    {key:'green',name:'Green',theme:'universal love',color:'#5bc992'},
+    {key:'blue',name:'Blue',theme:'communication / expression',color:'#50a9e4'},
+    {key:'indigo',name:'Indigo',theme:'gateway / intelligent energy',color:'#746edc'},
+    {key:'violet',name:'Violet',theme:'total vibratory signature',color:'#b370df'}
+  ];
+
+  const COSMOS_STAGES = [
+    ['Intelligent Infinity','Undifferentiated potential / unity'],
+    ['Free Will','First differentiation / possibility'],
+    ['Love / Logos','Focusing and organizing principle'],
+    ['Light','Manifesting structure / intelligent energy'],
+    ['Creation','Logoi · fields · worlds · experience']
+  ];
+
+  const state = {
+    view:'cosmos', cosmosStage:0, selectedDensity:3, timeMode:'space',
+    centers:{red:72,orange:57,yellow:52,green:45,blue:38,indigo:31,violet:52},
+    entity:{sto:34,sts:12,catalyst:46,choice:'uncommitted'},
+    social:{orientation:'positive',transparency:32,sharedMemory:24,coherence:36,individuality:92,entropy:12},
+    planet:{year:62000,sto:34,sts:11,catalyst:46,cohesion:31},
+    contact:{call:38,resistance:62,stsResonance:14,mode:'mind'},
+    selectedSource:0,
+    focus:{cosmos:0,densities:2,entity:0,energy:3,timespace:0,social:0,planet:0,contact:0,sources:0}
+  };
+
+  // ---------------------------------------------------------------------------
+  // Small deterministic helpers.
+  // ---------------------------------------------------------------------------
+  function mulberry32(seed){return function(){let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+  const rand = mulberry32(1337);
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const hex = h => { const n=parseInt(h.replace('#',''),16); return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255]; };
+  const rgba = (h,a=1)=>[...hex(h),a];
+  const mixColor=(a,b,t,alpha=1)=>[lerp(a[0],b[0],t),lerp(a[1],b[1],t),lerp(a[2],b[2],t),alpha];
+
+  function spherePoint(r,u,v){const th=u*Math.PI*2, ph=Math.acos(2*v-1);return [r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th)];}
+  function rotateY(p,a){const c=Math.cos(a),s=Math.sin(a);return [p[0]*c+p[2]*s,p[1],-p[0]*s+p[2]*c];}
+  function rotateX(p,a){const c=Math.cos(a),s=Math.sin(a);return [p[0],p[1]*c-p[2]*s,p[1]*s+p[2]*c];}
+  const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+
+  // ---------------------------------------------------------------------------
+  // Matrix / camera utilities.
+  // ---------------------------------------------------------------------------
+  function mat4Mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];}return o;}
+  function perspective(fov,aspect,near,far){const f=1/Math.tan(fov/2),nf=1/(near-far),o=new Float32Array(16);o[0]=f/aspect;o[5]=f;o[10]=(far+near)*nf;o[11]=-1;o[14]=2*far*near*nf;return o;}
+  function lookAt(eye,target,up=[0,1,0]){let zx=eye[0]-target[0],zy=eye[1]-target[1],zz=eye[2]-target[2];let l=Math.hypot(zx,zy,zz)||1;zx/=l;zy/=l;zz/=l;let xx=up[1]*zz-up[2]*zy,xy=up[2]*zx-up[0]*zz,xz=up[0]*zy-up[1]*zx;l=Math.hypot(xx,xy,xz)||1;xx/=l;xy/=l;xz/=l;let yx=zy*xz-zz*xy,yy=zz*xx-zx*xz,yz=zx*xy-zy*xx;const o=new Float32Array(16);o[0]=xx;o[1]=yx;o[2]=zx;o[3]=0;o[4]=xy;o[5]=yy;o[6]=zy;o[7]=0;o[8]=xz;o[9]=yz;o[10]=zz;o[11]=0;o[12]=-(xx*eye[0]+xy*eye[1]+xz*eye[2]);o[13]=-(yx*eye[0]+yy*eye[1]+yz*eye[2]);o[14]=-(zx*eye[0]+zy*eye[1]+zz*eye[2]);o[15]=1;return o;}
+  function transformPoint(m,p){const x=p[0],y=p[1],z=p[2],w=m[3]*x+m[7]*y+m[11]*z+m[15];return [(m[0]*x+m[4]*y+m[8]*z+m[12])/w,(m[1]*x+m[5]*y+m[9]*z+m[13])/w,(m[2]*x+m[6]*y+m[10]*z+m[14])/w,w];}
+
+  // ---------------------------------------------------------------------------
+  // Minimal native WebGL visual engine. No remote dependencies are required,
+  // which keeps the downloadable preview self-contained.
+  // ---------------------------------------------------------------------------
+  class VisualEngine {
+    constructor(canvas){
+      this.canvas=canvas;const force2d=new URLSearchParams(location.search).has('force2d');this.gl=force2d?null:canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false});
+      this.ctx2d=null;
+      this.camera={yaw:.52,pitch:.17,distance:9.2,target:[.7,0,0]};this.cameraGoal=null;this.vp=null;this.dpr=1;this.mobile=window.matchMedia('(max-width:760px)').matches;
+      if(this.gl){
+        this.pointProgram=this.program(`
+          attribute vec3 aPos;attribute vec4 aColor;attribute float aSize;uniform mat4 uVP;uniform float uDpr;varying vec4 vColor;
+          void main(){vec4 clip=uVP*vec4(aPos,1.0);gl_Position=clip;float k=clamp(10.0/max(2.0,clip.w),0.55,2.3);gl_PointSize=aSize*uDpr*k;vColor=aColor;}`,
+          `precision mediump float;varying vec4 vColor;void main(){vec2 q=gl_PointCoord-vec2(.5);float d=length(q);if(d>.5)discard;float core=smoothstep(.5,0.02,d);float glow=smoothstep(.5,.12,d);gl_FragColor=vec4(vColor.rgb,vColor.a*(.28*glow+.72*core));}`);
+        this.lineProgram=this.program(`attribute vec3 aPos;attribute vec4 aColor;uniform mat4 uVP;varying vec4 vColor;void main(){gl_Position=uVP*vec4(aPos,1.0);vColor=aColor;}`,
+          `precision mediump float;varying vec4 vColor;void main(){gl_FragColor=vColor;}`);
+        this.pointBuf=this.gl.createBuffer();this.lineBuf=this.gl.createBuffer();
+        const gl=this.gl;gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);gl.disable(gl.DEPTH_TEST);
+      }else{
+        this.ctx2d=canvas.getContext('2d');
+        document.documentElement.dataset.renderer='canvas2d-fallback';
+      }
+      this.resize();window.addEventListener('resize',()=>this.resize());
+    }
+    program(vs,fs){const gl=this.gl,s=(type,src)=>{const sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;};const p=gl.createProgram();gl.attachShader(p,s(gl.VERTEX_SHADER,vs));gl.attachShader(p,s(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));return p;}
+    resize(){this.mobile=window.matchMedia('(max-width:760px)').matches;this.dpr=Math.min(this.mobile?1.65:2,window.devicePixelRatio||1);const w=Math.floor(this.canvas.clientWidth*this.dpr),h=Math.floor(this.canvas.clientHeight*this.dpr);if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;if(this.gl)this.gl.viewport(0,0,w,h);}}
+    computeVP(){const c=this.camera,cp=Math.cos(c.pitch),eye=[c.target[0]+Math.sin(c.yaw)*cp*c.distance,c.target[1]+Math.sin(c.pitch)*c.distance,c.target[2]+Math.cos(c.yaw)*cp*c.distance];const fov=this.mobile?1.20:Math.PI/3;const p=perspective(fov,this.canvas.width/this.canvas.height,.08,80),v=lookAt(eye,c.target);this.vp=mat4Mul(p,v);return this.vp;}
+    render(scene){
+      this.resize();const vp=this.computeVP();
+      if(!this.gl){
+        const ctx=this.ctx2d,w=this.canvas.clientWidth,h=this.canvas.clientHeight,d=this.dpr;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='lighter';
+        for(let i=0;i<scene.lines.length;i+=2){const a=this.project(scene.lines[i].p),b=this.project(scene.lines[i+1].p);if(!a||!b)continue;const c=scene.lines[i].c;ctx.strokeStyle=`rgba(${Math.round(c[0]*255)},${Math.round(c[1]*255)},${Math.round(c[2]*255)},${c[3]})`;ctx.lineWidth=.65;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+        for(const x of scene.points){const p=this.project(x.p);if(!p)continue;const c=x.c,r=Math.max(.7,x.s*(this.mobile?1.36:1)*(1-p.z*.23)*.32);ctx.fillStyle=`rgba(${Math.round(c[0]*255)},${Math.round(c[1]*255)},${Math.round(c[2]*255)},${c[3]})`;ctx.shadowBlur=r*3;ctx.shadowColor=ctx.fillStyle;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();}ctx.shadowBlur=0;ctx.globalCompositeOperation='source-over';return;
+      }
+      const gl=this.gl;gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+      if(scene.lines.length){const arr=new Float32Array(scene.lines.length*7);scene.lines.forEach((x,i)=>{const o=i*7;arr[o]=x.p[0];arr[o+1]=x.p[1];arr[o+2]=x.p[2];arr[o+3]=x.c[0];arr[o+4]=x.c[1];arr[o+5]=x.c[2];arr[o+6]=x.c[3];});gl.useProgram(this.lineProgram);gl.bindBuffer(gl.ARRAY_BUFFER,this.lineBuf);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.DYNAMIC_DRAW);const ap=gl.getAttribLocation(this.lineProgram,'aPos'),ac=gl.getAttribLocation(this.lineProgram,'aColor');gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,28,0);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,4,gl.FLOAT,false,28,12);gl.uniformMatrix4fv(gl.getUniformLocation(this.lineProgram,'uVP'),false,vp);gl.drawArrays(gl.LINES,0,scene.lines.length);}
+      if(scene.points.length){const arr=new Float32Array(scene.points.length*8);scene.points.forEach((x,i)=>{const o=i*8;arr[o]=x.p[0];arr[o+1]=x.p[1];arr[o+2]=x.p[2];arr[o+3]=x.c[0];arr[o+4]=x.c[1];arr[o+5]=x.c[2];arr[o+6]=x.c[3];arr[o+7]=x.s*(this.mobile?1.42:1);});gl.useProgram(this.pointProgram);gl.bindBuffer(gl.ARRAY_BUFFER,this.pointBuf);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.DYNAMIC_DRAW);const ap=gl.getAttribLocation(this.pointProgram,'aPos'),ac=gl.getAttribLocation(this.pointProgram,'aColor'),as=gl.getAttribLocation(this.pointProgram,'aSize');gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,32,0);gl.enableVertexAttribArray(ac);gl.vertexAttribPointer(ac,4,gl.FLOAT,false,32,12);gl.enableVertexAttribArray(as);gl.vertexAttribPointer(as,1,gl.FLOAT,false,32,28);gl.uniformMatrix4fv(gl.getUniformLocation(this.pointProgram,'uVP'),false,vp);gl.uniform1f(gl.getUniformLocation(this.pointProgram,'uDpr'),this.dpr);gl.drawArrays(gl.POINTS,0,scene.points.length);}
+    }
+    project(p){if(!this.vp)return null;const q=transformPoint(this.vp,p);if(q[3]<=0||q[2]<-1||q[2]>1)return null;return {x:(q[0]*.5+.5)*this.canvas.clientWidth,y:(1-(q[1]*.5+.5))*this.canvas.clientHeight,z:q[2]};}
+    reset(view,animate=false){const desktop={cosmos:[.52,.17,9.2],densities:[.65,.26,10.2],entity:[.32,.08,8.3],energy:[.25,.02,7.6],timespace:[.72,.32,9.5],social:[.6,.28,9],planet:[.45,.18,8.7],contact:[.53,.12,11],sources:[.6,.3,10.4]};const mobile={cosmos:[.42,.12,7.2],densities:[.52,.17,8.1],entity:[.22,.04,6.3],energy:[.18,.01,5.9],timespace:[.58,.20,7.4],social:[.46,.18,7.1],planet:[.36,.12,6.9],contact:[.45,.08,8.9],sources:[.48,.18,8.0]};const p=(this.mobile?mobile:desktop)[view]||(this.mobile?mobile.cosmos:desktop.cosmos);const cfg={yaw:p[0],pitch:p[1],distance:p[2],target:[.65,0,0]};if(animate)this.flyTo(cfg);else{Object.assign(this.camera,{yaw:cfg.yaw,pitch:cfg.pitch,distance:cfg.distance,target:[...cfg.target]});this.cameraGoal=null;}}
+    flyTo(cfg){this.cameraGoal={yaw:cfg.yaw??this.camera.yaw,pitch:cfg.pitch??this.camera.pitch,distance:cfg.distance??this.camera.distance,target:cfg.target?[...cfg.target]:[...this.camera.target]};document.getElementById('app-shell')?.classList.add('scene-transition');setTimeout(()=>document.getElementById('app-shell')?.classList.remove('scene-transition'),260);}
+    update(dt){if(!this.cameraGoal)return;const k=1-Math.exp(-dt*5.2),g=this.cameraGoal,c=this.camera;const angleDelta=(to,from)=>{let d=to-from;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return d;};c.yaw+=angleDelta(g.yaw,c.yaw)*k;c.pitch=lerp(c.pitch,g.pitch,k);c.distance=lerp(c.distance,g.distance,k);for(let i=0;i<3;i++)c.target[i]=lerp(c.target[i],g.target[i],k);if(Math.abs(angleDelta(g.yaw,c.yaw))<.002&&Math.abs(c.pitch-g.pitch)<.002&&Math.abs(c.distance-g.distance)<.01&&Math.hypot(c.target[0]-g.target[0],c.target[1]-g.target[1],c.target[2]-g.target[2])<.01)this.cameraGoal=null;}
+    cancelFlight(){this.cameraGoal=null;}
+  }
+
+  const canvas=document.getElementById('gl-scene'), labelsEl=document.getElementById('labels'), control=document.getElementById('controlPanel');
+  const engine=new VisualEngine(canvas);
+
+  // Camera interaction: one-finger / mouse orbit, two-finger pinch zoom.
+  let dragging=false,lastX=0,lastY=0,lastPinch=0,lastTap=0,movedDuringGesture=false;
+  const pointers=new Map();
+  function pinchDistance(){const pts=[...pointers.values()];if(pts.length<2)return 0;return Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);}
+  canvas.addEventListener('pointerdown',e=>{engine.cancelFlight();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});movedDuringGesture=false;if(pointers.size===1){dragging=true;lastX=e.clientX;lastY=e.clientY;}else if(pointers.size===2){dragging=false;lastPinch=pinchDistance();}canvas.setPointerCapture(e.pointerId);});
+  canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const prev=pointers.get(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(Math.hypot(e.clientX-prev.x,e.clientY-prev.y)>3)movedDuringGesture=true;if(pointers.size>=2){const d=pinchDistance();if(lastPinch&&d){const delta=d-lastPinch;engine.camera.distance=clamp(engine.camera.distance-delta*.018,engine.mobile?3.2:4.2,18);}lastPinch=d;return;}if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;engine.camera.yaw-=dx*(engine.mobile?.0048:.006);engine.camera.pitch=clamp(engine.camera.pitch-dy*(engine.mobile?.0042:.005),-1.25,1.25);});
+  function endPointer(e){pointers.delete(e.pointerId);if(pointers.size<2)lastPinch=0;if(pointers.size===0){dragging=false;const now=performance.now();if(!movedDuringGesture&&now-lastTap<320){engine.reset(state.view,true);applyCinematicCamera(true);}if(!movedDuringGesture)lastTap=now;}else if(pointers.size===1){const p=[...pointers.values()][0];lastX=p.x;lastY=p.y;dragging=true;}}
+  canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);
+  canvas.addEventListener('wheel',e=>{e.preventDefault();engine.cancelFlight();engine.camera.distance=clamp(engine.camera.distance+e.deltaY*.008,4.0,18);},{passive:false});
+
+  // ---------------------------------------------------------------------------
+  // Scene geometry helpers.
+  // ---------------------------------------------------------------------------
+  function scene(){return {points:[],lines:[],labels:[],interactives:[]};}
+  function P(s,p,c,size=6){s.points.push({p,c,s:size});}
+  function L(s,a,b,c){s.lines.push({p:a,c},{p:b,c});}
+  function label(s,p,title,sub='',selected=false,action=null){const x={p,title,sub,selected,action};s.labels.push(x);if(action)s.interactives.push(x);}
+  function ring(s,r,color,alpha=.18,segments=96,tilt=.0,center=[0,0,0],phase=0){let prev=null,first=null;for(let i=0;i<=segments;i++){const a=phase+i/segments*Math.PI*2;let p=[Math.cos(a)*r,Math.sin(a)*r,0];p=rotateX(p,tilt);p=add(p,center);if(i<segments)P(s,p,[...color.slice(0,3),alpha*.8],2.2);if(prev)L(s,prev,p,[...color.slice(0,3),alpha*.18]);else first=p;prev=p;}return first;}
+  function shell(s,r,color,alpha=.12,count=260,seed=1,center=[0,0,0]){const rr=mulberry32(seed);for(let i=0;i<count;i++){const p=add(spherePoint(r,rr(),rr()),center);P(s,p,[...color.slice(0,3),alpha*(.55+rr()*.65)],1.8+rr()*2.4);}}
+  function starfield(s,count=440,seed=77){const rr=mulberry32(seed);for(let i=0;i<count;i++){const p=spherePoint(16+rr()*14,rr(),rr());const a=.08+rr()*.2;P(s,p,[.58+.3*rr(),.67+.25*rr(),.82+.16*rr(),a],1.2+rr()*1.8);}}
+  function pulse(t,speed=1){return .5+.5*Math.sin(t*speed);}
+
+  // ---------------------------------------------------------------------------
+  // Individual view builders.
+  // ---------------------------------------------------------------------------
+  function cosmosScene(t){const s=scene();starfield(s,560,81);const stage=state.cosmosStage,gold=hex('#e7c983'),white=hex('#eef4ff'),cyan=hex('#75bfff');
+    // Undifferentiated field.
+    const rr=mulberry32(8);for(let i=0;i<330;i++){const rad=.25+Math.pow(rr(),.48)*2.0;const p=spherePoint(rad,rr(),rr());P(s,add(p,[.6,0,0]),mixColor(white,gold,rr()*.45,.055+rr()*.17),2+rr()*4.5);}P(s,[.6,0,0],[1,.93,.72,.9],32+8*pulse(t,.8));
+    if(stage>=1){for(let i=0;i<150;i++){const a=i*.115+t*.12,rad=.45+i*.012;const p=[.6+Math.cos(a)*rad,(i-75)*.017,Math.sin(a)*rad*.55];P(s,p,[.73,.80,1,.10+i/150*.12],2.8);}L(s,[.6,0,0],[2.2,.9,.4],[.62,.72,1,.18]);L(s,[.6,0,0],[-1.2,-.75,.2],[.62,.72,1,.12]);}
+    if(stage>=2){const core=[.7,.1,0];for(let k=0;k<3;k++)ring(s,1.25+k*.18,mixColor(gold,cyan,k*.22,1),.17,100,.72+k*.38,core,t*.08*(k+1));P(s,core,[1,.82,.42,.95],28+6*pulse(t,1.5));}
+    if(stage>=3){const c=[.7,.1,0];for(let r=0;r<16;r++){const a=r/16*Math.PI*2+t*.04,dir=[Math.cos(a)*4.2,Math.sin(a*.7)*2.5,Math.sin(a)*2.0];L(s,c,add(c,dir),[.62,.78,1,.075]);for(let j=1;j<11;j++){const q=add(c,[dir[0]*j/11,dir[1]*j/11,dir[2]*j/11]);P(s,q,[.72,.85,1,.08+j*.008],2.4);}}}
+    if(stage>=4){const rg=mulberry32(44);for(let arm=0;arm<4;arm++){for(let i=0;i<180;i++){const r=.6+rg()*5.2,a=arm*Math.PI/2+r*1.55+(rg()-.5)*.38+t*.015;let p=[Math.cos(a)*r,(rg()-.5)*.48*(1-r/7),Math.sin(a)*r*.82];p=add(p,[.8,.05,0]);const mix=rg();P(s,p,mixColor(cyan,gold,mix*.35,.13+rg()*.26),1.4+rg()*2.8);}}}
+    const positions=[[-2.2,2.5,-.4],[-.8,1.65,.25],[.6,.7,0],[1.8,-.35,.15],[2.8,-1.55,-.3]];
+    COSMOS_STAGES.forEach((x,i)=>{const active=i===stage;P(s,positions[i],active?[1,.85,.48,.95]:[.45,.55,.7,.3],active?18:8);if(i>0)L(s,positions[i-1],positions[i],i<=stage?[.85,.72,.42,.24]:[.4,.5,.65,.07]);label(s,positions[i],x[0],x[1],active,{type:'stage',value:i});});
+    return s;
+  }
+
+  function densitiesScene(t){const s=scene();starfield(s,330,22);const center=[.75,0,0];
+    DENSITIES.forEach((d,i)=>{const r=1.05+i*.38,sel=d.n===state.selectedDensity,col=hex(d.color),tilt=.18+i*.17;ring(s,r,col,sel?.65:.12,sel?150:78,tilt,center,t*.018*(i%2?1:-1));if(sel){shell(s,r,col,.08,220,120+i,center);for(let k=0;k<10;k++){const a=k/10*Math.PI*2+t*.12;P(s,add(center,[Math.cos(a)*r,Math.sin(a)*r*.6,Math.sin(a*.8)*r*.2]),[...col,.65],6+3*pulse(t+k,.8));}}
+      const a=.35+i*.21,p=add(center,[Math.cos(a)*r,Math.sin(a)*r*.72,Math.sin(a)*r*.18]);label(s,p,`D${d.n} · ${d.name}`,d.sub,sel,{type:'density',value:d.n});
+    });P(s,center,[.93,.96,1,.9],24);label(s,center,'One field','Densities are visualized as vibrational organization, not physical altitude.',false);
+    return s;
+  }
+
+  function energyCore(s,t,entityMode=false){const ys=CENTER_Y,x=.7,energyFocus=state.view==='energy'?state.focus.energy:null,entityFocus=entityMode?state.focus.entity:null;CENTERS.forEach((c,i)=>{const p=[x,ys[i],0],col=hex(c.color),v=state.centers[c.key]/100,focused=energyFocus===null||i===energyFocus||entityFocus===1,dim=focused?1:.28;P(s,p,[...col,(.2+.78*v)*dim],(13+v*17+3*pulse(t+i,.9))*(focused?1.18:.68));shell(s,.12+.13*v,col,(.08+v*.06)*dim,focused?42:18,50+i,p);if(i>0)L(s,[x,ys[i-1],0],p,[...col,(.08+.22*v)*dim]);label(s,[x+.34,ys[i],0],c.name,c.theme,energyFocus===i,{type:'center',value:c.key});});
+    for(let i=0;i<65;i++){const phase=(i/65+t*.075)%1,y=-3.2+phase*6.2;const idx=clamp(Math.floor((y+2.45)/.79),0,6),c=hex(CENTERS[idx].color),dim=energyFocus===null||idx===energyFocus||entityFocus===1?1:.22;P(s,[x+.08*Math.sin(i*4.7+t*2),y,.05*Math.cos(i+t)],[...c,(.12+.35*(1-phase))*dim],(2.5+2*pulse(t+i,.7))*(dim<1?.72:1.2));}
+    // incoming catalyst stream
+    const catalystBoost=entityFocus===0?2.3:1;for(let i=0;i<34;i++){const z=(i/34*5.4+t*.55)%5.4-2.7;P(s,[x-2.9+z*.48,-2.75+.12*Math.sin(i),.15*Math.cos(i*.8)],[.84,.88,1,.13*catalystBoost],2.5*catalystBoost);}
+    if(entityMode){const core=[x,0,0],sto=[3.5,1.55,-.6],sts=[3.5,-1.55,.6],boost=entityFocus===2?2.2:.75;L(s,core,sto,[.38,.86,.65,(.16+state.entity.sto/500)*boost]);L(s,core,sts,[.91,.39,.5,(.13+state.entity.sts/500)*boost]);P(s,sto,[.38,.86,.65,.48*boost],11*(entityFocus===2?1.55:1));P(s,sts,[.91,.39,.5,.43*boost],11*(entityFocus===2?1.55:1));label(s,sto,'Service to Others',`${state.entity.sto}% orientation`,entityFocus===2);label(s,sts,'Service to Self',`${state.entity.sts}% orientation`,entityFocus===2);}
+  }
+  function energyScene(t){const s=scene();starfield(s,250,30);energyCore(s,t,false);return s;}
+  function entityScene(t){const s=scene();starfield(s,260,31);energyCore(s,t,true);const c=[.7,0,0];ring(s,3.7,[.55,.66,.9],.07,110,.75,c,t*.02);return s;}
+
+  function timeSpaceScene(t){const s=scene();starfield(s,300,11);const c=[.65,0,0];P(s,c,[1,.87,.58,.95],22+3*pulse(t,1.2));label(s,c,'Incarnate nexus',state.timeMode==='space'?'experienced sequence':'probability / possibility overview',true);
+    if(state.timeMode==='space'){
+      const pts=[];for(let i=0;i<15;i++){const z=-5+i*.72,p=[.65+Math.sin(i*.6)*.12,0,z];pts.push(p);P(s,p,i===7?[1,.84,.52,.9]:[.47,.69,.95,.35],i===7?13:5);if(i)L(s,pts[i-1],p,[.45,.67,.95,.18]);}label(s,pts[0],'Past','experienced events');label(s,pts[14],'Future','not yet experienced');for(let i=0;i<35;i++){const q=(i/35+t*.07)%1,z=-5+q*10.1;P(s,[.65,0,z],[.55,.79,1,.18],3);}
+    }else{
+      const endpoints=[[4.5,2.1,-2],[4.2,1,-.6],[4.7,-.15,.2],[4.1,-1.25,1.0],[3.8,-2.25,2.1]];endpoints.forEach((e,k)=>{const mid=[2.2,(e[1])*.58,(e[2])*.45];L(s,c,mid,[.66,.53,1,.15]);L(s,mid,e,[.66,.53,1,.10]);P(s,e,[.69,.54,1,.35],8);label(s,e,`Possibility ${String.fromCharCode(65+k)}`,k===2?'high-resonance branch':'available branch');for(let j=0;j<10;j++){const q=(j/10+t*.06+k*.05)%1,p=[lerp(c[0],e[0],q),lerp(c[1],e[1],q)+Math.sin(q*Math.PI)*(.18+k*.03),lerp(c[2],e[2],q)];P(s,p,[.7,.58,1,.15],2.6);}});shell(s,1.35,hex('#a783ff'),.08,160,77,c);label(s,[.7,2.1,.1],'Higher-self resource','map-like aid; free choice remains with the entity',false);
+    }
+    return s;
+  }
+
+  function socialScene(t){const s=scene();starfield(s,260,19);const pos=state.social.orientation==='positive',rr=mulberry32(pos?314:911),nodes=[];const coherence=state.social.coherence/100,shared=state.social.sharedMemory/100,entropy=state.social.entropy/100;
+    for(let i=0;i<52;i++){let cluster=pos?0:(i%4);const base=pos?[.65,0,0]:[.65+(cluster-1.5)*1.4,(cluster%2-.5)*1.1,((cluster+1)%2-.5)*1.2];const spread=pos?3.15*(1-coherence*.45):1.0+entropy*1.2;const p=add(base,[(rr()-.5)*spread*2,(rr()-.5)*spread*1.55,(rr()-.5)*spread*1.6]);nodes.push(p);const c=pos?mixColor(hex('#75bfff'),hex('#69d5a5'),rr(),.35+.45*shared):mixColor(hex('#df7f93'),hex('#a783ff'),rr()*.45,.28+.35*(1-entropy));P(s,p,c,5+4*state.social.transparency/100);}
+    const maxDist=pos?1.15+coherence*2.2:.65+(1-entropy)*.65;for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const a=nodes[i],b=nodes[j],d=Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);if(d<maxDist&&rr()<.12+.28*shared)L(s,a,b,pos?[.38,.79,.68,.035+.12*shared]:[.86,.42,.56,.025+.06*(1-entropy)]);}
+    if(pos){P(s,[.65,0,0],[.8,.94,1,.8],30+10*pulse(t,.7));shell(s,1.0,hex('#69d5a5'),.08+.1*shared,160,33,[.65,0,0]);label(s,[.65,0,0],'Shared memory field','central thought complex · individuality remains visible',true);}else{label(s,[.65,2.5,0],'Negative social complex','coherence under separation / entropy pressure',true);}
+    return s;
+  }
+
+  function planetSphere(s,t,center=[.65,0,0],r=1.75){const rr=mulberry32(55);for(let i=0;i<760;i++){const p=add(spherePoint(r,rr(),rr()),center),n=(p[1]-center[1])/r,c=n>.25?hex('#5ab7af'):hex('#4b78a3');const land=rr()>.62;P(s,p,land?mixColor(c,hex('#69d5a5'),.5,.20+rr()*.32):[c[0],c[1],c[2],.12+rr()*.23],1.6+rr()*2.2);}ring(s,r*1.24,hex('#75bfff'),.12,130,.4,center,t*.018);ring(s,r*1.42,hex('#e7c983'),.07,130,-.72,center,-t*.012);}
+  function planetScene(t){const s=scene();starfield(s,430,62);const center=[.25,0,0];planetSphere(s,t,center,1.72);const rr=mulberry32(600),sto=state.planet.sto/100,sts=state.planet.sts/100;for(let i=0;i<94;i++){const a=i/94*Math.PI*2+t*.022*(i%3+1),r=2.1+rr()*.75,p=[center[0]+Math.cos(a)*r,center[1]+(rr()-.5)*2.7,center[2]+Math.sin(a)*r*.75],q=rr(),c=q<sto?[.38,.86,.65,.55]:q<sto+sts?[.9,.38,.49,.55]:[.55,.6,.7,.26];P(s,p,c,3.5);}
+    // Visual "line of light" resonance scan.
+    const start=[2.5,-2.25,.15],end=[5.2,-2.25,.15];for(let i=0;i<70;i++){const q=i/69,p=[lerp(start[0],end[0],q),start[1],start[2]],c=mixColor(hex('#4b78a3'),hex('#f5f2dd'),q,(state.focus.planet===2?2.0:1)*(.12+.35*q));P(s,p,c,(3+5*q)*(state.focus.planet===2?1.45:1));}label(s,[3.85,-1.93,.15],'Line of light','harvest visualized as resonance, not judgment',state.focus.planet===2);
+    label(s,[.25,2.45,0],`Planetary cycle · ${Math.round(state.planet.year/1000)}k years`,`STO ${state.planet.sto}% · STS ${state.planet.sts}% · catalyst ${state.planet.catalyst}%`,state.focus.planet!==2);return s;
+  }
+
+  function cluster(s,center,color,count,seed,t){const rr=mulberry32(seed);for(let i=0;i<count;i++){const p=add(center,[(rr()-.5)*1.2,(rr()-.5)*1.5,(rr()-.5)*1.1]);P(s,p,[...color,.25+rr()*.42],4+rr()*5);if(i<7)ring(s,.18+i*.04,color,.04,34,.4+i*.2,p,t*.01);}}
+  function contactScene(t){const s=scene();starfield(s,430,7);const earth=[.65,0,0];planetSphere(s,t,earth,1.05);shell(s,2.18,hex('#e7c983'),.09,380,91,earth);ring(s,2.18,hex('#e7c983'),.21,170,.25,earth,t*.015);ring(s,2.18,hex('#e7c983'),.12,170,-.9,earth,-t*.012);label(s,[.65,2.45,0],'Guardian quarantine','love/light boundary · source-backed concept',state.focus.contact===1);
+    const conf=[-4.2,1.3,-.8],orion=[5.0,-1.25,.9];cluster(s,conf,hex('#69d5a5'),26,71,t);cluster(s,orion,hex('#df7f93'),22,72,t);label(s,conf,'Confederation',`calling ${state.contact.call}%`,state.focus.contact===0||state.focus.contact===2);label(s,orion,'Orion-oriented influence',`STS resonance ${state.contact.stsResonance}%`,state.focus.contact===2);
+    const call=state.contact.call/100,res=state.contact.resistance/100,sts=state.contact.stsResonance/100,modeMul={mind:.45,thought:.7,open:1}[state.contact.mode];for(let i=0;i<Math.floor(8+call*32);i++){const off=(i-18)*.035,a=[earth[0]-1.0,earth[1]+off,earth[2]],b=[lerp(a[0],conf[0],.9),lerp(a[1],conf[1],.9)+off*.4,lerp(a[2],conf[2],.9)];L(s,a,b,[.38,.86,.65,.035+.16*call*modeMul*(1-res*.6)]);}for(let i=0;i<Math.floor(3+sts*25);i++){const off=(i-12)*.04,a=[earth[0]+1.0,earth[1]+off,earth[2]],b=[lerp(a[0],orion[0],.92),lerp(a[1],orion[1],.92)-off*.2,lerp(a[2],orion[2],.92)];L(s,a,b,[.9,.38,.49,.03+.17*sts]);}
+    return s;
+  }
+
+  function sourcesScene(t){const s=scene();starfield(s,360,404);const rr=mulberry32(909),nodes=[];SOURCES.forEach((src,i)=>{const a=i/SOURCES.length*Math.PI*2,r=2.2+(i%4)*.47,p=[.65+Math.cos(a)*r,Math.sin(a*1.7)*2.1,Math.sin(a)*r*.65];nodes.push(p);const sel=i===state.selectedSource;P(s,p,sel?[.93,.83,.54,.95]:[.45,.7,.92,.35],sel?17:7);if(i>0)L(s,nodes[i-1],p,[.43,.61,.8,.06]);if(sel)label(s,p,src.id,src.concept,true,{type:'source',value:i});else if(i%3===0)label(s,p,src.id,src.concept,false,{type:'source',value:i});});if(nodes.length)L(s,nodes[nodes.length-1],nodes[0],[.43,.61,.8,.06]);P(s,[.65,0,0],[.92,.96,1,.82],26);label(s,[.65,0,0],'Source map','click a session node to inspect its role',false);return s;}
+
+  function buildScene(t){switch(state.view){case'cosmos':return cosmosScene(t);case'densities':return densitiesScene(t);case'entity':return entityScene(t);case'energy':return energyScene(t);case'timespace':return timeSpaceScene(t);case'social':return socialScene(t);case'planet':return planetScene(t);case'contact':return contactScene(t);case'sources':return sourcesScene(t);default:return cosmosScene(t);}}
+
+  // ---------------------------------------------------------------------------
+  // Phase 4 cinematic navigation. Each view has a small sequence of visual
+  // beats with a deliberate camera target. This is especially important on
+  // mobile, where the whole ontology should never be squeezed into one frame.
+  // ---------------------------------------------------------------------------
+  const CENTER_Y=[-2.45,-1.66,-.87,-.08,.71,1.50,2.29];
+  function sourceNode(i){const a=i/SOURCES.length*Math.PI*2,r=2.2+(i%4)*.47;return [.65+Math.cos(a)*r,Math.sin(a*1.7)*2.1,Math.sin(a)*r*.65];}
+  function beatsFor(view=state.view){
+    if(view==='cosmos')return COSMOS_STAGES.map((x,i)=>({caption:x[0],apply(){state.cosmosStage=i;state.focus.cosmos=i;},camera:[.40+i*.08,.10+i*.025,i===4?8.0:5.6+i*.18,[.68,.05,0]]}));
+    if(view==='densities')return DENSITIES.map((d,i)=>({caption:`D${d.n} · ${d.name}`,apply(){state.selectedDensity=d.n;state.focus.densities=i;},camera:[.46+i*.055,.12+i*.018,4.5+i*.43,[.75,0,0]]}));
+    if(view==='entity')return [
+      {caption:'Catalyst enters',apply(){state.focus.entity=0;},camera:[-.15,-.02,4.6,[-1.25,-2.30,0]]},
+      {caption:'Centers respond',apply(){state.focus.entity=1;},camera:[.18,.02,5.2,[.70,-.10,0]]},
+      {caption:'Choice polarizes',apply(){state.focus.entity=2;},camera:[.18,.04,4.9,[2.35,0,0]]}
+    ];
+    if(view==='energy')return CENTERS.map((c,i)=>({caption:`${c.name} · ${c.theme}`,apply(){state.focus.energy=i;},camera:[.10,.00,3.75,[.70,CENTER_Y[i],0]]}));
+    if(view==='timespace')return [
+      {caption:'Space/Time sequence',apply(){state.timeMode='space';state.focus.timespace=0;},camera:[.12,.12,6.8,[.65,0,-.1]]},
+      {caption:'Time/Space possibilities',apply(){state.timeMode='time';state.focus.timespace=1;},camera:[.48,.24,7.0,[1.55,0,0]]}
+    ];
+    if(view==='social')return [
+      {caption:'Distinct individuals',apply(){state.focus.social=0;state.social.transparency=18;state.social.sharedMemory=10;state.social.coherence=20;state.social.individuality=94;},camera:[.38,.13,7.0,[.65,0,0]]},
+      {caption:'Shared access emerges',apply(){state.focus.social=1;state.social.transparency=48;state.social.sharedMemory=48;state.social.coherence=50;state.social.individuality=90;},camera:[.52,.18,6.2,[.65,0,0]]},
+      {caption:'Coherent memory field',apply(){state.focus.social=2;state.social.transparency=76;state.social.sharedMemory=82;state.social.coherence=80;state.social.individuality=86;},camera:[.66,.22,5.5,[.65,0,0]]}
+    ];
+    if(view==='planet')return [
+      {caption:'Planetary field',apply(){state.focus.planet=0;},camera:[.30,.10,5.7,[.25,0,0]]},
+      {caption:'Collective orientations',apply(){state.focus.planet=1;},camera:[.52,.19,7.1,[.25,0,0]]},
+      {caption:'Harvest resonance',apply(){state.focus.planet=2;},camera:[.20,.05,4.6,[3.8,-2.2,.15]]}
+    ];
+    if(view==='contact')return [
+      {caption:'The calling',apply(){state.focus.contact=0;},camera:[.42,.10,7.5,[-1.45,.45,-.3]]},
+      {caption:'Guardian quarantine',apply(){state.focus.contact=1;},camera:[.34,.13,5.2,[.65,0,0]]},
+      {caption:'Contrasting orientations',apply(){state.focus.contact=2;},camera:[.50,.10,9.5,[.55,0,0]]}
+    ];
+    if(view==='sources')return SOURCES.map((src,i)=>({caption:`${src.id} · ${src.concept}`,apply(){state.selectedSource=i;state.focus.sources=i;},camera:[.48+i*.025,.18,6.2,sourceNode(i)]}));
+    return [];
+  }
+  function activeBeatIndex(view=state.view){const beats=beatsFor(view);return clamp(state.focus[view]??0,0,Math.max(0,beats.length-1));}
+  function cameraForBeat(beat){if(!beat||!beat.camera)return null;const [yaw,pitch,distance,target]=beat.camera;let d=distance;if(engine.mobile){d*=.92;if(state.view==='contact')d*=1.04;if(state.view==='energy')d*=.90;}return {yaw,pitch,distance:d,target};}
+  function applyCinematicCamera(animate=true){const beats=beatsFor(),beat=beats[activeBeatIndex()];const cfg=cameraForBeat(beat);if(cfg){if(animate)engine.flyTo(cfg);else{engine.camera.yaw=cfg.yaw;engine.camera.pitch=cfg.pitch;engine.camera.distance=cfg.distance;engine.camera.target=[...cfg.target];engine.cameraGoal=null;}}}
+  function setBeat(index,animate=true){const beats=beatsFor();if(!beats.length)return;const i=clamp(index,0,beats.length-1),beat=beats[i];state.focus[state.view]=i;beat.apply?.();applyCinematicCamera(animate);renderUI();if(engine.mobile)closeMobileControls();}
+  function stepBeat(delta){setBeat(activeBeatIndex()+delta,true);}
+  function beatText(view=state.view,index=activeBeatIndex()){
+    const texts={
+      cosmos:['Undifferentiated potential is rendered as a boundless luminous field.','The first differentiation introduces possibility without yet fixing an outcome.','Love / Logos appears as an organizing focus that patterns intelligent energy.','Light becomes visible structure: relation, rhythm, geometry and manifestation.','The camera pulls back as structured creation blossoms into nested fields and worlds.'],
+      densities:['Elemental being: the foundation of the octave.','Growth and movement: awareness begins to organize into living patterns.','Self-awareness and the Choice: separation becomes experientially intense.','Love / understanding: transparency and shared relation become dominant.','Wisdom / light: discernment becomes the organizing lesson.','Love and wisdom are progressively integrated toward unity.','Gateway / foreverness: the model approaches completion of the octave.','Completion and renewal: the octave closes into the beginning of another.'],
+      entity:['Catalyst arrives as experience. It does not predetermine the response.','The same experience is filtered through the entity’s current energetic configuration.','Response becomes orientation: acceptance/service, control/separation, or insufficient polarization.'],
+      energy:CENTERS.map(c=>`Focus on the ${c.name.toLowerCase()} center: ${c.theme}. Adjust its throughput in the control sheet.`),
+      timespace:['Space/time is shown as an experienced sequence with a local before and after.','Time/space is visualized as an overview of possibility branches; this geometry is an explicit teaching abstraction.'],
+      social:['Many individuals remain visibly distinct.','Shared access appears as connections between still-distinct nodes.','A coherent field emerges without visually erasing the individual nodes.'],
+      planet:['See the planetary field as the environment for collective experience.','Pull back to see many orientations coexisting inside one planetary nexus.','Move to the line-of-light metaphor: graduation is rendered as resonance, not external judgment.'],
+      contact:['Follow the signal between a calling population and a responding service orientation.','Move close to the quarantine shell: the visual boundary represents a free-will constraint, not a physical wall.','Pull back to compare Confederation-oriented response and Orion-oriented influence without reducing them to a battle interface.'],
+      sources:SOURCES.map(s=>`${s.concept}: ${s.note}`)
+    };return (texts[view]&&texts[view][index])||copy[view]?.[2]||'';
+  }
+
+  // ---------------------------------------------------------------------------
+  // UI / controls.
+  // ---------------------------------------------------------------------------
+  const copy={
+    cosmos:['UNITY → DIFFERENTIATION → EXPERIENCE','Intelligent Infinity','Advance the sequence to watch an undifferentiated field differentiate into Free Will, Logos/Love, Light, and structured creation.','13.7–13.9 · 15.21–15.22'],
+    densities:['ONE OCTAVE · DIFFERENT MODES OF ORGANIZATION','Density Explorer','The rings are a teaching topology, not stacked physical places. Select a density to see its organization become visually dominant.','41.10 · 17.32–17.34 · 20.36 · 36.1–36.7'],
+    entity:['CATALYST → RESPONSE → POLARIZATION','Entity Evolution','Follow one mind/body/spirit complex as catalyst meets energy-center configuration and opens divergent orientations of service.','15.12 · 17.32–17.34 · 21.9–21.10'],
+    energy:['EXPERIENCE ENTERS · CENTERS RESPOND','Energy Centers','Catalyst enters the embodied system. Change center activation and watch the luminous throughput and blockages reorganize.','15.12 · 50.2–50.4 · 54.11–54.27'],
+    timespace:['SEQUENCE ↔ POSSIBILITY','Space/Time · Time/Space','Switch between incarnate sequence and a deliberately abstracted probability/possibility view inspired by the higher-self material.','36.1–36.7 · 47.11–47.15'],
+    social:['INDIVIDUALITY → SHARED MEMORY','Social Memory Complex','Watch many distinct nodes gain transparency, shared memory and coherence without simply erasing individual identity.','16.32 · 41.26 · 7.15–7.17'],
+    planet:['INDIVIDUAL CHOICE → PLANETARY FIELD','Planetary Evolution','A planet aggregates individual orientations, catalyst, vibration and cycle timing. The line of light is rendered as resonance rather than judgment.','6.14–6.16 · 17.41–17.43'],
+    contact:['CALLING ↔ FREE WILL CONSTRAINT','Contact & Quarantine','Visualize calling, resistance, quarantine and two contrasting contact orientations without turning the model into a battle game.','7.1–7.9 · 12.3–12.7 · 8.12–8.14'],
+    sources:['TRACE THE MODEL BACK TO THE TEXT','Source Constellation','Every major visual mechanic should be traceable to a session reference or explicitly marked as synthesis / abstraction.','The Ra Contact · Volume I']
+  };
+
+  const mobileToggle=document.getElementById('mobileControlsToggle'),cinematicNav=document.getElementById('cinematicNav'),scenePrev=document.getElementById('scenePrev'),sceneNext=document.getElementById('sceneNext'),sceneCounter=document.getElementById('sceneCounter'),sceneCaption=document.getElementById('sceneCaption'),sceneDots=document.getElementById('sceneDots');
+  function openMobileControls(){if(!engine.mobile)return;control.classList.add('open');mobileToggle.setAttribute('aria-expanded','true');mobileToggle.textContent='Close';}
+  function closeMobileControls(){control.classList.remove('open');mobileToggle.setAttribute('aria-expanded','false');mobileToggle.textContent='Controls';}
+  mobileToggle.addEventListener('click',()=>control.classList.contains('open')?closeMobileControls():openMobileControls());
+
+  function setView(v){state.view=v;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));closeMobileControls();const beats=beatsFor(v),i=activeBeatIndex(v);beats[i]?.apply?.();engine.reset(v,false);applyCinematicCamera(true);renderUI();}
+  document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b)setView(b.dataset.view);});
+  document.getElementById('resetCamera').addEventListener('click',()=>{engine.reset(state.view,false);applyCinematicCamera(true);});
+
+  function story(){const c=copy[state.view],beats=beatsFor(),i=activeBeatIndex(),beat=beats[i];document.getElementById('eyebrow').textContent=c[0];document.getElementById('modeTitle').textContent=c[1];document.getElementById('storyTitle').textContent=beat?.caption||c[1];document.getElementById('storyText').textContent=beatText(state.view,i);document.getElementById('sourceLine').textContent='Sources: '+c[3];const pill=document.getElementById('statusPills');let p=[];if(state.view==='cosmos')p=[['stage',`${state.cosmosStage+1}/5`],['model','source-linked']];if(state.view==='densities')p=[['selected',`D${state.selectedDensity}`],['representation','non-spatial topology']];if(state.view==='entity')p=[['STO',`${state.entity.sto}%`],['STS',`${state.entity.sts}%`],['choice',state.entity.choice]];if(state.view==='energy')p=[['focus',CENTERS[i]?.name||'center'],['throughput',`${state.centers[CENTERS[i]?.key]??0}%`]];if(state.view==='timespace')p=[['view',state.timeMode==='space'?'space/time':'time/space'],['free will','preserved']];if(state.view==='social')p=[['orientation',state.social.orientation],['shared memory',`${state.social.sharedMemory}%`]];if(state.view==='planet')p=[['cycle',`${Math.round(state.planet.year/1000)}k / 75k`],['cohesion',`${state.planet.cohesion}%`]];if(state.view==='contact')p=[['call',`${state.contact.call}%`],['resistance',`${state.contact.resistance}%`],['mode',state.contact.mode]];if(state.view==='sources')p=[['session',SOURCES[state.selectedSource]?.id||'—'],['traceability','source-linked']];pill.innerHTML=p.map(x=>`<span>${x[0]} <b>${x[1]}</b></span>`).join('');}
+
+  function renderCinematicNav(){const beats=beatsFor(),i=activeBeatIndex();sceneCounter.textContent=`${String(i+1).padStart(2,'0')} / ${String(beats.length).padStart(2,'0')}`;sceneCaption.textContent=beats[i]?.caption||'';scenePrev.disabled=i<=0;sceneNext.disabled=i>=beats.length-1;sceneDots.innerHTML=beats.map((b,j)=>`<button data-scene-beat="${j}" class="${j===i?'active':''}" aria-label="${b.caption}"></button>`).join('');sceneDots.querySelectorAll('[data-scene-beat]').forEach(b=>b.addEventListener('click',()=>setBeat(+b.dataset.sceneBeat,true)));}
+  scenePrev.addEventListener('click',()=>stepBeat(-1));sceneNext.addEventListener('click',()=>stepBeat(1));
+
+  function range(label,key,value,min=0,max=100,step=1){return `<div class="section"><label>${label}<b>${value}</b></label><div class="range"><input type="range" data-range="${key}" min="${min}" max="${max}" step="${step}" value="${value}"><b>${value}</b></div></div>`;}
+  function panelTitle(k,t,p){return `<div class="sheet-handle" aria-hidden="true"></div><div class="panel-title"><span>${k}</span><h2>${t}</h2><p>${p}</p></div>`;}
+
+  function renderPanel(){let h='';
+    if(state.view==='cosmos'){
+      h+=panelTitle('COSMOGENESIS','Emergence sequence','Each visual layer remains present as the next distortion/organization emerges.');
+      h+=`<div class="section"><div class="section-title"><span>Emergence</span><b>${state.cosmosStage+1} / 5</b></div><div class="stepper">${COSMOS_STAGES.map((x,i)=>`<button data-stage="${i}" class="${i===state.cosmosStage?'active':''}">${i+1}</button>`).join('')}</div></div>`;
+      h+=`<div class="section"><div class="source-card"><i>source-backed</i><b>${COSMOS_STAGES[state.cosmosStage][0]}</b><span>${state.cosmosStage===0?'Rendered as an undifferentiated luminous field. This visual form is an abstraction; the ontology is source-linked.':COSMOS_STAGES[state.cosmosStage][1]}</span></div></div>`;
+    }
+    if(state.view==='densities'){
+      h+=panelTitle('DENSITY MAP','Vibrational topology','Select a density. The 3D shells are deliberately presented as organization/frequency, not physical altitude.');
+      h+=`<div class="density-list">${DENSITIES.map(d=>`<button data-density="${d.n}" class="${d.n===state.selectedDensity?'active':''}"><b>D${d.n} · ${d.name}</b><span style="color:${d.color}">${d.sub}</span></button>`).join('')}</div>`;
+      const d=DENSITIES[state.selectedDensity-1];h+=`<div class="section"><div class="source-card"><i>${d.source.includes('synthesis')?'synthesis':'source-backed'}</i><b>${d.source}</b><span>${d.sub}</span></div></div>`;
+    }
+    if(state.view==='entity'){
+      h+=panelTitle('ENTITY','Catalyst response','This is a causal teaching abstraction: the same catalyst can be used in different orientations.');
+      h+=range('Catalyst intensity','entity.catalyst',state.entity.catalyst);
+      h+=`<div class="section"><div class="section-title"><span>Response</span><b>${state.entity.choice}</b></div><div class="decision"><button data-choice="sto"><b>Accept / serve</b><span>Increase a coherent service-to-others orientation.</span></button><button data-choice="sts"><b>Control / separate</b><span>Increase a coherent service-to-self orientation.</span></button><button data-choice="observe"><b>Do not polarize</b><span>Leave the catalyst mostly unused in this teaching model.</span></button></div></div>`;
+      h+=`<div class="metric-grid"><div class="metric"><span>STO</span><b>${state.entity.sto}%</b></div><div class="metric"><span>STS</span><b>${state.entity.sts}%</b></div></div><div class="callout">51% STO and 95% STS are source-backed graduation thresholds; the incremental changes produced by these buttons are simulation abstractions.</div>`;
+    }
+    if(state.view==='energy'){
+      h+=panelTitle('ENERGY','Center throughput','Adjust each center. Brightness and flow change immediately in the WebGL scene.');
+      CENTERS.forEach(c=>h+=range(`${c.name} · ${c.theme}`,`centers.${c.key}`,state.centers[c.key]));
+      h+=`<div class="callout">The center functions are source-linked. Numeric 0–100 activation values are visualization controls, not Ra measurements.</div>`;
+    }
+    if(state.view==='timespace'){
+      h+=panelTitle('TIME / SPACE','Two perspectives','The spatial geometry is intentionally different in each mode. The branch geometry is a simulation abstraction of probability/possibility resources.');
+      h+=`<div class="section"><div class="seg"><button data-time="space" class="${state.timeMode==='space'?'active':''}">SPACE/TIME</button><button data-time="time" class="${state.timeMode==='time'?'active':''}">TIME/SPACE</button></div></div>`;
+      h+=`<div class="section"><div class="source-card"><i>source-backed + abstraction</i><b>36.1–36.7</b><span>Higher self as a resource for healing/programming; probability/possibility information can be used without eliminating free choice.</span></div><div class="source-card"><i>source-backed</i><b>47.11–47.15</b><span>Death-transition material informs the shift away from ordinary incarnate perspective.</span></div></div>`;
+    }
+    if(state.view==='social'){
+      h+=panelTitle('SOCIAL MEMORY','Network consciousness','Node identity remains visible while shared access and coherence increase.');
+      h+=`<div class="section"><div class="seg"><button data-social-orientation="positive" class="${state.social.orientation==='positive'?'active':''}">POSITIVE</button><button data-social-orientation="negative" class="${state.social.orientation==='negative'?'active':''}">NEGATIVE</button></div></div>`;
+      h+=range('Transparency','social.transparency',state.social.transparency)+range('Shared memory','social.sharedMemory',state.social.sharedMemory)+range('Coherence','social.coherence',state.social.coherence)+range('Individuality','social.individuality',state.social.individuality)+range('Entropy pressure','social.entropy',state.social.entropy);
+    }
+    if(state.view==='planet'){
+      h+=panelTitle('PLANET','Collective evolution','A visual aggregation layer for cycle timing, orientation and planetary catalyst.');
+      h+=range('Cycle year','planet.year',state.planet.year,0,75000,500)+range('Collective STO','planet.sto',state.planet.sto)+range('Collective STS','planet.sts',state.planet.sts)+range('Catalyst','planet.catalyst',state.planet.catalyst)+range('Social cohesion','planet.cohesion',state.planet.cohesion);
+      h+=`<div class="callout">The 25k / 75k cycle structure and line-of-light metaphor are source-backed. Aggregate percentages are simulation abstractions.</div>`;
+    }
+    if(state.view==='contact'){
+      h+=panelTitle('CONTACT','Call · resistance · quarantine','See how calling and resistance alter visual contact intensity inside the model.');
+      h+=range('Calling','contact.call',state.contact.call)+range('Non-caller resistance','contact.resistance',state.contact.resistance)+range('STS resonance','contact.stsResonance',state.contact.stsResonance);
+      h+=`<div class="section"><div class="section-title"><span>Contact mode</span><b>${state.contact.mode}</b></div><div class="seg three"><button data-contact-mode="mind" class="${state.contact.mode==='mind'?'active':''}">MIND</button><button data-contact-mode="thought" class="${state.contact.mode==='thought'?'active':''}">THOUGHT</button><button data-contact-mode="open" class="${state.contact.mode==='open'?'active':''}">OPEN</button></div></div>`;
+      const freedom=Math.round(state.contact.call*(1-state.contact.resistance/130));h+=`<div class="metric-grid"><div class="metric"><span>call signal</span><b>${state.contact.call}%</b></div><div class="metric"><span>free-will compatibility*</span><b>${freedom}%</b></div></div><div class="callout">*Computed compatibility is explicitly a simulation abstraction, not a number supplied by Ra.</div>`;
+    }
+    if(state.view==='sources'){
+      h+=panelTitle('SOURCES','Traceability map','Select a session reference in the constellation or list.');
+      h+=`<div class="section">${SOURCES.map((x,i)=>`<button class="source-card" data-source="${i}" style="width:100%;text-align:left;cursor:pointer;${i===state.selectedSource?'border-color:rgba(231,201,131,.35)':''}"><i>source-backed</i><b>${x.id} · ${x.concept}</b><span>${x.note}</span></button>`).join('')}</div>`;
+    }
+    control.innerHTML=h;
+    bindPanel();
+  }
+
+  function setPath(path,value){const [a,b]=path.split('.');if(b)state[a][b]=value;else state[a]=value;}
+  function bindPanel(){
+    control.querySelectorAll('[data-stage]').forEach(b=>b.addEventListener('click',()=>setBeat(+b.dataset.stage,true)));
+    control.querySelectorAll('[data-density]').forEach(b=>b.addEventListener('click',()=>setBeat(+b.dataset.density-1,true)));
+    control.querySelectorAll('[data-time]').forEach(b=>b.addEventListener('click',()=>setBeat(b.dataset.time==='space'?0:1,true)));
+    control.querySelectorAll('[data-social-orientation]').forEach(b=>b.addEventListener('click',()=>{state.social.orientation=b.dataset.socialOrientation;renderUI();}));
+    control.querySelectorAll('[data-contact-mode]').forEach(b=>b.addEventListener('click',()=>{state.contact.mode=b.dataset.contactMode;renderUI();}));
+    control.querySelectorAll('[data-source]').forEach(b=>b.addEventListener('click',()=>setBeat(+b.dataset.source,true)));
+    control.querySelectorAll('[data-choice]').forEach(b=>b.addEventListener('click',()=>{const c=b.dataset.choice,stateE=state.entity,intensity=stateE.catalyst/100;if(c==='sto'){stateE.sto=clamp(Math.round(stateE.sto+2+intensity*4),0,100);stateE.sts=clamp(stateE.sts-1,0,100);stateE.choice='STO-oriented';state.centers.green=clamp(state.centers.green+4,0,100);state.centers.blue=clamp(state.centers.blue+2,0,100);}else if(c==='sts'){stateE.sts=clamp(Math.round(stateE.sts+3+intensity*5),0,100);stateE.sto=clamp(stateE.sto-1,0,100);stateE.choice='STS-oriented';state.centers.yellow=clamp(state.centers.yellow+4,0,100);}else{stateE.choice='unpolarized';}state.focus.entity=2;applyCinematicCamera(true);renderUI();}));
+    control.querySelectorAll('[data-range]').forEach(i=>i.addEventListener('input',()=>{const path=i.dataset.range,v=+i.value;setPath(path,v);const b=i.parentElement.querySelector('b');if(b)b.textContent=v;story();renderCinematicNav();}));
+  }
+
+  function renderUI(){story();renderPanel();renderCinematicNav();}
+
+  // Guided cinematic cosmogenesis.
+  let tour=null;document.getElementById('guided').addEventListener('click',()=>{clearInterval(tour);setView('cosmos');setBeat(0,false);tour=setInterval(()=>{const i=activeBeatIndex();if(i>=beatsFor().length-1){clearInterval(tour);tour=null;return;}setBeat(i+1,true);},1900);});
+
+  // Canvas hit testing for interactive luminous nodes / labels.
+  canvas.addEventListener('click',e=>{if(dragging||movedDuringGesture)return;const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;let best=null,bd=engine.mobile?46:30;for(const it of currentScene.interactives){const p=engine.project(it.p);if(!p)continue;const d=Math.hypot(p.x-x,p.y-y);if(d<bd){bd=d;best=it;}}if(!best)return;const a=best.action;if(a.type==='stage')setBeat(a.value,true);if(a.type==='density')setBeat(a.value-1,true);if(a.type==='source')setBeat(a.value,true);if(a.type==='center'){const idx=CENTERS.findIndex(c=>c.key===a.value);if(idx>=0&&state.view==='energy')setBeat(idx,true);}});
+
+  // ---------------------------------------------------------------------------
+  // Label projection + animation loop.
+  // ---------------------------------------------------------------------------
+  let currentScene=scene(),lastLabelKey='';
+  function updateLabels(sc){const key=sc.labels.map(x=>x.title+'|'+x.sub+'|'+x.selected).join('~')+'|'+engine.mobile;if(key!==lastLabelKey){lastLabelKey=key;labelsEl.innerHTML='';sc.labels.forEach((x,i)=>{const el=document.createElement('div');el.className='scene-label'+(x.selected?' selected':'');el.dataset.i=i;el.innerHTML=`<b>${x.title}</b>${x.sub?`<span>${x.sub}</span>`:''}`;labelsEl.appendChild(el);});}
+    const sparseStep=Math.max(2,Math.ceil(sc.labels.length/4));sc.labels.forEach((x,i)=>{const el=labelsEl.children[i],p=engine.project(x.p);if(!el||!p){if(el)el.style.display='none';return;}const mobileVisible=!engine.mobile||x.selected||sc.labels.length<=4||i%sparseStep===0;if(!mobileVisible){el.style.display='none';return;}el.style.display='block';el.style.left=p.x+'px';el.style.top=p.y+'px';el.style.opacity=String(clamp(1-Math.max(0,p.z-.55)*1.7,.18,1));});
+  }
+  window.addEventListener('resize',()=>{if(!engine.mobile)closeMobileControls();setTimeout(()=>applyCinematicCamera(true),80);});
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')stepBeat(1);if(e.key==='ArrowLeft')stepBeat(-1);if(e.key==='Escape')closeMobileControls();});
+  const staticPreview=new URLSearchParams(location.search).has('static');let last=performance.now();function frame(now){const t=now/1000,dt=Math.min(.05,(now-last)/1000);last=now;engine.update(dt);if(!dragging&&!engine.cameraGoal&&!engine.mobile&&['cosmos','densities','social','planet','contact','sources'].includes(state.view))engine.camera.yaw+=dt*.012;currentScene=buildScene(t);engine.render(currentScene);updateLabels(currentScene);if(!staticPreview)requestAnimationFrame(frame);}engine.reset('cosmos',false);beatsFor('cosmos')[0].apply();applyCinematicCamera(false);renderUI();if(staticPreview)frame(performance.now());else requestAnimationFrame(frame);
+})();
+
+</script>
+</body>
+</html>

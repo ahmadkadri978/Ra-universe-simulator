@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "rootDir": "src",
+    "outDir": ".offline-build",
+    "declaration": false,
+    "sourceMap": false,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/domain/**/*.ts",
+    "src/sources/**/*.ts",
+    "src/simulation/events/**/*.ts",
+    "src/simulation/state/**/*.ts",
+    "src/simulation/rules/**/*.ts",
+    "src/simulation/engine/**/*.ts",
+    "src/simulation/utils/**/*.ts"
+  ],
+  "exclude": ["**/*.test.ts", "src/simulation/store/**"]
+}

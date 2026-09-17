@@ -1,0 +1,37 @@
+{
+  "name": "law-of-one-ontology-simulator",
+  "version": "0.5.0-phase1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "typecheck:domain": "tsc -p tsconfig.domain.json --noEmit",
+    "build:domain:offline": "rm -rf .offline-build && tsc -p tsconfig.domain.json",
+    "test:domain:offline": "npm run build:domain:offline && node tests/domain.test.mjs",
+    "verify:architecture": "node scripts/verify-architecture.mjs",
+    "verify:phase1": "npm run typecheck:domain && npm run test:domain:offline && npm run verify:architecture"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.3",
+    "@react-three/fiber": "^8.17.10",
+    "framer-motion": "^11.11.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.170.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.10",
+    "vitest": "^2.1.4"
+  }
+}
