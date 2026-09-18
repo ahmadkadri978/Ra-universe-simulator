@@ -1,5 +1,7 @@
 import { createDefaultEnergyCenters } from '../../domain/energyCenters/energyCenters.js';
 import type { SimulationState } from './types.js';
+import { createIncarnation } from '../incarnation/programming.js';
+import { createPossibilityGraph } from '../possibility/engine.js';
 
 export const createInitialSimulationState = (seed = 19810115): SimulationState => ({
   seed,
@@ -26,19 +28,15 @@ export const createInitialSimulationState = (seed = 19810115): SimulationState =
     compassion: 0.44,
     wisdom: 0.31,
   },
-  incarnation: {
-    phase: 'INCARNATE',
-    age: 31,
-    plan: {
-      id: 'plan-primary',
-      lessons: ['acceptance', 'responsibility', 'balanced service'],
-      limitations: ['partial memory', 'uncertainty', 'finite lifespan'],
-      relationshipThemes: ['trust', 'boundaries', 'service'],
-      catalystThemes: ['loss', 'power', 'belonging'],
-    },
-  },
+  incarnation: createIncarnation('entity-primary'),
+  possibilities: createPossibilityGraph('entity-primary', 'entity-primary-life-1-open'),
+  timeSpace: { entityId: 'entity-primary', incarnationId: 'entity-primary-life-1', reality: 'SPACE_TIME', perspective: 'INCARNATE_SELF', selectedEventId: null, selectedPossibilityId: null, sourceClassification: 'SIMULATION_ABSTRACTION' },
+  lifeReview: null,
   higherSelf: {
     available: true,
+    sourceClassification: 'SOURCE_BACKED',
+    accumulatedLessonIds: [],
+    guidance: null,
     programmedLessonIds: ['acceptance', 'responsibility', 'balanced-service'],
     probabilityBranches: [
       { id: 'branch-a', label: 'Acceptance / integration', weight: 0.36, open: true, source: 'SIMULATION_ABSTRACTION' },

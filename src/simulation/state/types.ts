@@ -3,6 +3,8 @@ import type { HigherSelfState } from '../../domain/higherSelf/types.js';
 import type { IncarnationState } from '../../domain/incarnation/types.js';
 import type { SocialMemoryState } from '../../domain/socialMemory/types.js';
 import type { ConceptId } from '../../domain/ontology/types.js';
+import type { PossibilityGraph } from '../../domain/possibility/types.js';
+import type { LifeReview, TimeSpaceState } from '../../domain/timeSpace/types.js';
 
 export interface SimulationClock {
   tick: number;
@@ -17,5 +19,8 @@ export interface SimulationState {
   entity: EntityState;
   incarnation: IncarnationState;
   higherSelf: HigherSelfState;
+  possibilities: PossibilityGraph;
+  timeSpace: TimeSpaceState;
+  lifeReview: LifeReview | null;
   socialMemory: SocialMemoryState;
 }

@@ -1,125 +1,96 @@
 # The Law of One Ontology Simulator
 
-An interactive, source-traceable visualization and simulation architecture for the ontology described in *The Ra Contact / Law of One*.
+An interactive, source-traceable model of concepts described in *The Ra Contact / Law of One*.
 
-The project keeps a strict distinction between source-backed concepts, inference, and simulator-only visual/mechanical abstractions.
+## Phase 3 — The life pattern
 
-## Current Phase
-
-**Phase 2 — Continuous Universe + Next-Generation 3D Engine**
-
-The production React/Three application now uses one continuous world rather than page-like scene switching:
+The original continuous universe remains intact:
 
 **Intelligent Infinity → Logos → Galaxy → Star → Planet → Civilization → Entity → Energy Centers → Inner Consciousness**
 
-Clicking focal objects moves the camera deeper into the same conceptual universe. Breadcrumbs and Back return through previous scales.
+Phase 3 extends that world into incarnation, Time/Space, Higher Self, possibility vortices, and life programming. The camera travels within one scene; no page routing is involved.
 
-## Phase 2 Visual Systems
+### Explore
 
-- deterministic procedural particle fields
-- cinematic camera travel
-- click-to-travel object picking
-- continuous world spine
-- emissive and additive glow layers
-- animated curved energy streams
-- depth fog and layered translucent fields
-- distinct scale-specific visual grammar
-- fragmented D3 vs coherent D6 teaching metaphors
-- responsive HUD and mobile-compatible orbit/zoom controls
-- Source Inspector integrated with the active scale
+1. Select **Explore a life**, or continue through Entity and Inner Consciousness.
+2. Open **Life programming** and configure seven illustrative conditions.
+3. Enter incarnation, enter the veil, and meet a catalyst.
+4. Choose a response as the **Incarnate self**. Inspect the changed possibility field.
+5. Explore physical death, review the recorded events, and mark experiences as integrated.
+6. Visit **Higher Self** for optional pattern guidance. **Totality** also exposes archived life events and parent–child possibility connections.
+7. Prepare another incarnation. The earlier life stays in the session archive.
 
-The scale geometry and camera nesting are explicitly classified as `SIMULATION_ABSTRACTION`; they are not presented as literal geometry stated by Ra.
+On phones, use **Open controls** for the planning, choice, and review panel. Canvas interactions also have text controls. Sources open in an accessible dialog.
 
-## Stack
+**Higher Self cannot choose for the entity.** Runtime reducer checks reject choices from Higher Self, Totality, or a broader viewing lens. Guidance changes neither responses nor polarity.
 
-- React 18
-- TypeScript
-- Vite
-- React Three Fiber
-- Three.js
-- @react-three/drei
-- Zustand
-- Vitest
+**Visual weights are not probabilities.** Numbers, branch rules, geometry, colors, timing, and example consequences are simulation abstractions. Programmed conditions never assign a response.
 
-## Run locally
+## Run
 
-```bash
+Use Node.js 22.12 or later.
+
+```sh
 npm install
 npm run dev
 ```
 
-Production build:
+Development: **http://127.0.0.1:5174** (Vite selects another port if occupied).
 
-```bash
+```sh
+npm test
 npm run build
 npm run preview
 ```
 
-Tests:
+Production preview: **http://127.0.0.1:4173**. Serve the generated `dist/` through HTTP; do not open its HTML as a local file.
 
-```bash
-npm test
-```
+`npm test` runs the Phase 1 assertions, Phase 2 navigation and architecture checks, 13 Phase 3 behavioral tests, and the existing Vitest tests. `npm run verify:phase3` runs the pure model checks plus TypeScript. The lockfile records the verified dependencies.
 
-Offline architectural verification:
+The tool launcher normally uses native esbuild. On hosts that reject subprocess pipes with EPERM/EACCES, it uses esbuild's WebAssembly build with a private filesystem adapter. This fallback was used to verify the Windows build, tests, and development server. It does not ship to the browser. Symlink preservation is enabled only for that fallback.
 
-```bash
-npm run verify:phase2
-```
+## Architecture
 
-`verify:phase2` checks the Phase 1 domain architecture plus the pure Phase 2 scale/navigation model without requiring the React/Three dependencies to be downloaded.
-
-## Folder Structure
+React 18 + TypeScript + React Three Fiber / Three.js + Zustand + Vite.
 
 ```text
 src/
-  app/                      composition root and global styling
-  domain/                   source-oriented ontology/state definitions
-  simulation/               deterministic engine, rules, events, state
-  sources/                  source catalog and evidence classifications
+  domain/         ontology and typed state, including possibility and timeSpace
+  simulation/
+    incarnation/  guarded lifecycle, planning, seeded examples, selectors
+    higherSelf/   optional guidance with no choice authority
+    possibility/  reusable deterministic graph transitions
+    lifeReview/   actual event grouping and integration annotations
+    engine/       pure event reducer
+    store/        Zustand adapter
+  sources/        evidence catalog and session/question references
   visual/
-    components/             reusable 3D rendering primitives
-    effects/                continuous world connectors
-    navigation/             scale graph, camera, history, travel logic
-    scales/                 Infinity → Inner scale renderers
-    scenes/                 ContinuousUniverseScene
+    navigation/   nine original scales plus five nested Phase 3 views
+    incarnation/  persistent identity, event lattice, planning constellation
+    timeSpace/    relational field
+    higherSelf/   layered information atlas
+    possibility/  branching splines and flow
+    effects/      optional desktop bloom
   ui/
-    phase2/                  continuous-universe HUD
-    SourceInspector.tsx      provenance inspection
-
-docs/
-  ARCHITECTURE.md
-  SIMULATION_CONSTITUTION.md
-  SOURCE_METHODOLOGY.md
-  ADR-001-DOMAIN-SEPARATION.md
-  PHASE_1_REPORT.md
-  PHASE_2_REPORT.md
-public/
-  legacy-phase4-preview.html
+    phase2/       original universe controls
+    phase3/       planning, perspectives, choices, review, source dialog
+  app/            composition root
 ```
 
-## Architectural Rule
+Domain and simulation rules remain independent of React and Three.js. The architecture check enforces this on Windows and Unix.
 
-Dependency direction remains intentional:
+## Evidence
 
-**source/domain → simulation → store → visual/navigation → UI → app**
+- `SOURCE_BACKED`: a concept supported by linked session/question references.
+- `INFERRED`: an interpretive relationship or guidance suggestion.
+- `SIMULATION_ABSTRACTION`: an authored interface, geometry, number, or mechanic.
 
-Simulation rules must never be embedded inside shaders, camera logic, or React components.
+Read [Phase 3 design](docs/PHASE_3_HIGHER_SELF.md), [verification report](docs/PHASE_3_REPORT.md), [architecture](docs/ARCHITECTURE.md), [constitution](docs/SIMULATION_CONSTITUTION.md), and [source methodology](docs/SOURCE_METHODOLOGY.md).
 
-## Source Classification
+## Scope and limits
 
-Every meaningful concept or mechanic belongs to one of:
+State is held in memory. Reloading starts a fresh session. The model is educational, not a prediction, a metaphysical measurement, or evidence that adversity was chosen.
 
-- `SOURCE_BACKED`
-- `INFERRED`
-- `SIMULATION_ABSTRACTION`
+Rendering caps event geometry at 8 nodes on compact screens and 14 on desktop; the appropriate lens's complete record remains in the text panel. Mobile disables bloom, limits DPR, and reduces detail. **Soft light** enables optional desktop bloom.
 
-See `docs/SOURCE_METHODOLOGY.md`.
-
-## Legacy Preview
-
-`public/legacy-phase4-preview.html` preserves the earlier standalone cinematic prototype. The production Phase 2 implementation lives in `src/` and is launched through `index.html` using Vite.
-
-## Next Planned Phase
-
-Phase 3: **Higher Self + Time/Space + Probability/Possibility Vortices**.
+The archived prototype remains at `public/legacy-phase4-preview.html`. Advanced Phase 4 catalyst simulation, Guided Journey, and audio are outside this release.

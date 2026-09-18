@@ -10,6 +10,7 @@ export function UniverseHUD() {
   const travelTo = useUniverseNavigation((state) => state.travelTo);
   const back = useUniverseNavigation((state) => state.back);
   const reset = useUniverseNavigation((state) => state.reset);
+  const enterPhase3 = useUniverseNavigation((state) => state.enterPhase3);
 
   const active = getUniverseScale(activeScaleId);
   const path = getScalePath(activeScaleId);
@@ -19,7 +20,7 @@ export function UniverseHUD() {
     <>
       <div className="universe-hud-top glass-panel">
         <div className="hud-brand">
-          <span className="eyebrow">PHASE 2 · CONTINUOUS UNIVERSE</span>
+          <span className="eyebrow">CONTINUOUS UNIVERSE · PHASE 3 AVAILABLE</span>
           <strong>Ra Ontology Simulator</strong>
         </div>
         <div className="hud-scale-status">
@@ -27,6 +28,7 @@ export function UniverseHUD() {
           <b>{active.label}</b>
         </div>
         <div className="hud-actions">
+          <button className="icon-button" onClick={() => enterPhase3('timeline')}>Explore a life →</button>
           <button className="icon-button" onClick={back} disabled={history.length === 0 && active.parentId === null}>← Back</button>
           <button className="icon-button secondary" onClick={reset}>Reset view</button>
         </div>
@@ -66,8 +68,9 @@ export function UniverseHUD() {
             Continue inward <b>{next.shortLabel} →</b>
           </button>
         ) : (
-          <div className="journey-end">Innermost Phase 2 scale reached. Phase 3 will extend this space into Higher Self / time-space structures.</div>
+          <button className="continue-button" onClick={() => enterPhase3('timeline')}>Enter the life pattern <b>Incarnation →</b></button>
         )}
+        {activeScaleId === 'entity' && <button className="continue-button" onClick={() => travelTo('inner', 'inner-consciousness')}>Explore this identity <b>Inner consciousness →</b></button>}
       </section>
 
       <div className="journey-meter" aria-label="Continuous zoom progress">

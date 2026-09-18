@@ -17,3 +17,15 @@ This document constrains every future implementation decision.
 13. **The simulator models The Ra Contact ontology; it does not present that ontology as established physical science.**
 
 Any future feature that conflicts with this constitution must either be redesigned or explicitly documented as a conscious exception.
+
+## Phase 3 enforced invariants
+
+- A pending catalyst requires an explicit ENTITY response from the INCARNATE_SELF lens. Higher Self and Totality actors are rejected at runtime.
+- Guidance never writes a ChoiceEvent, modifies polarity, or evolves the graph.
+- Programming writes conditions only. Identical conditions admit acceptance, control, or deferral.
+- Death appends a marker and preserves history, including unanswered catalyst.
+- Review derives from actual event IDs. Integration is an annotation, not moral judgment or spiritual measurement.
+- Re-entry archives the previous life and retains entity identity. Unresolved experiences do not block re-entry.
+- View conversion changes presentation, not events or identity.
+- Branch weights stay in [0, 1], need not sum to one, and are never predictions. Multiple possibilities remain open.
+- The lifecycle, finite graph, illustrative responses, and seven planning presets are teaching devices. They are not a universal timetable or an account of a real person's life.

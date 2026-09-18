@@ -12,6 +12,7 @@ import { InnerScale } from '../scales/InnerScale.js';
 import { LogosScale } from '../scales/LogosScale.js';
 import { PlanetScale } from '../scales/PlanetScale.js';
 import { StarScale } from '../scales/StarScale.js';
+import { JourneyWorld } from '../incarnation/JourneyWorld.js';
 
 interface ContinuousUniverseSceneProps {
   onSelectConcept: (conceptId: ConceptId) => void;
@@ -20,18 +21,20 @@ interface ContinuousUniverseSceneProps {
 export function ContinuousUniverseScene({ onSelectConcept }: ContinuousUniverseSceneProps) {
   const activeScaleId = useUniverseNavigation((state) => state.activeScaleId);
   const travelTo = useUniverseNavigation((state) => state.travelTo);
+  const phase3View = useUniverseNavigation((state) => state.phase3View);
+  const index = universeScales.findIndex((scale) => scale.id === activeScaleId);
 
   return (
     <>
-      <color attach="background" args={['#02050b']} />
-      <fog attach="fog" args={['#02050b', 6, 22]} />
+      <color attach="background" args={[phase3View ? '#0a1416' : '#02050b']} />
+      <fog attach="fog" args={[phase3View ? '#0a1416' : '#02050b', 14, 32]} />
       <ambientLight intensity={0.25} />
       <directionalLight position={[4, 6, 7]} intensity={0.55} color="#a9c9ff" />
       <pointLight position={[0, 2, -19]} intensity={7} distance={11} color="#d8aa55" />
 
-      <UniverseSpine />
+      {!phase3View && <UniverseSpine />}
 
-      {universeScales.map((scale) => (
+      {universeScales.filter((scale) => !phase3View && Math.abs(scale.index - index) <= 1).map((scale) => (
         <group key={scale.id} position={scale.anchor as unknown as [number, number, number]}>
           {scale.id === 'infinity' ? (
             <InfinityScale
@@ -95,6 +98,7 @@ export function ContinuousUniverseScene({ onSelectConcept }: ContinuousUniverseS
         </group>
       ))}
 
+      <JourneyWorld />
       <CinematicCameraRig />
     </>
   );

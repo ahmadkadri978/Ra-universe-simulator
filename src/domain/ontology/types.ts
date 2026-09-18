@@ -14,7 +14,9 @@ export type ConceptId =
   | 'higher_self'
   | 'social_memory_complex'
   | 'space_time'
-  | 'time_space';
+  | 'time_space'
+  | 'totality' | 'possibility_vortices' | 'incarnation_program' | 'program_conditions'
+  | 'form_maker' | 'life_review' | 'healing' | 'veil' | 'visual_weights' | 'perspective_lenses';
 
 export interface OntologyConcept {
   id: ConceptId;

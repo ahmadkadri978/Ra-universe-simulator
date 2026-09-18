@@ -1,4 +1,4 @@
-# Production Architecture — Phase 2
+# Production Architecture — Phases 2 and 3
 
 ## Goal
 
@@ -134,3 +134,26 @@ The previous standalone visual prototype remains at:
 `public/legacy-phase4-preview.html`
 
 It is reference material only; the production entry point is the React application.
+
+## Phase 3 model and boundaries
+
+`JourneyAction → simulationReducer → journeyReducer → SimulationState`.
+The incarnation reducer controls lifecycle transitions; invalid transitions return the original state. Legacy phase events delegate to the same guards. Higher Self guidance returns only a HigherSelfState, with no ability to mutate the entity, events, or graph.
+
+Domain types include IncarnationProgram, IncarnationState, CatalystEvent, ChoiceEvent, LifeEvent, PossibilityNode, PossibilityGraph, LifeReview, TimeSpaceState, and PerspectiveMode. Authored event/graph/review data has explicit abstraction classification.
+
+The reusable possibility engine changes emphasis and adds linked children only after an explicit response. Deterministic replay means the same seed and actions produce the same record; it does not determine future choices.
+
+## Phase 3 spatial integration
+
+The nine-scale graph is unchanged. Five anchors extend Inner Consciousness. A persistent JourneyWorld interpolates between anchors while the camera travels. The same event nodes reshape from chronological positions into a relational lattice. Higher Self adds an information atlas.
+
+Navigation stores view, selected object, perspective, and past/future snapshots independently of the model. App synchronizes restored viewing context without replaying life actions. Back/forward restores viewing context, not earlier life-state versions.
+
+## Rendering budget
+
+Only the current Phase 2 scale and its neighbors mount. Phase 3 detail mounts on entry. The event geometry is bounded, spline paths and procedural buffers are memoized, and flow particles are limited. DPR caps are 1.6 desktop / 1.25 compact. Optional desktop bloom runs at DPR 1. Reduced motion suppresses decorative movement and shortens travel. Full appropriate-lens records remain in text.
+
+## Tooling
+
+Vite 6.4.3, Vitest 4.1.11, and the React Vite plugin are locked to verified versions. The launcher selects native esbuild or an in-process WASM fallback when subprocess pipes are denied. The fallback redirects compiler module resolution, uses a private filesystem facade, and writes normal compiler output. It is not included in browser bundles.

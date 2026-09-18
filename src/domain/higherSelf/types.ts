@@ -10,4 +10,7 @@ export interface HigherSelfState {
   available: boolean;
   probabilityBranches: ProbabilityBranch[];
   programmedLessonIds: string[];
+  sourceClassification: 'SOURCE_BACKED';
+  accumulatedLessonIds: string[];
+  guidance: { patterns: string[]; suggestedLessons: string[]; sourceClassification: 'INFERRED' } | null;
 }

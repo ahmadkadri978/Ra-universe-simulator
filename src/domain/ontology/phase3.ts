@@ -1,0 +1,14 @@
+import type { OntologyConcept } from './types.js';
+
+export const phase3Concepts: readonly OntologyConcept[] = [
+  { id: 'totality', name: 'Mind/Body/Spirit Totality', shortDescription: 'An information resource for Higher Self in Ra’s account.', classification: 'SOURCE_BACKED', parentIds: ['higher_self'], childIds: ['possibility_vortices'], sourceRecordIds: ['source-totality'] },
+  { id: 'possibility_vortices', name: 'Probability / Possibility Vortices', shortDescription: 'Possible developments remain open to free choice.', classification: 'SOURCE_BACKED', parentIds: ['totality'], childIds: ['visual_weights'], sourceRecordIds: ['source-vortices', 'source-visual-weights'] },
+  { id: 'incarnation_program', name: 'Pre-incarnative Programming', shortDescription: 'Program conditions and lesson focus while leaving responses open.', classification: 'SOURCE_BACKED', parentIds: ['higher_self'], childIds: ['program_conditions'], sourceRecordIds: ['source-programming', 'source-program-conditions'] },
+  { id: 'program_conditions', name: 'Programmed Conditions', shortDescription: 'An interpretive relationship between lessons and circumstances.', classification: 'INFERRED', parentIds: ['incarnation_program'], childIds: [], sourceRecordIds: ['source-program-conditions'] },
+  { id: 'form_maker', name: 'Indigo / Form-maker Body', shortDescription: 'A post-death reference in the Ra material.', classification: 'SOURCE_BACKED', parentIds: ['mind_body_spirit_complex'], childIds: ['life_review'], sourceRecordIds: ['source-form-maker'] },
+  { id: 'life_review', name: 'Life Review', shortDescription: 'Experience revisited through patterns, relationships, and responses.', classification: 'SOURCE_BACKED', parentIds: ['time_space'], childIds: ['healing'], sourceRecordIds: ['source-life-review'] },
+  { id: 'healing', name: 'Healing / Integration', shortDescription: 'Assistance with understanding and integrating experience.', classification: 'SOURCE_BACKED', parentIds: ['life_review'], childIds: ['incarnation_program'], sourceRecordIds: ['source-healing'] },
+  { id: 'veil', name: 'Veil / Limited Perspective', shortDescription: 'The limited perspective of embodied experience.', classification: 'SOURCE_BACKED', parentIds: ['space_time'], childIds: [], sourceRecordIds: ['source-veil'] },
+  { id: 'visual_weights', name: 'Visual Weights & Geometry', shortDescription: 'An authored visual model; no numerical forecasts are made.', classification: 'SIMULATION_ABSTRACTION', parentIds: ['possibility_vortices'], childIds: [], sourceRecordIds: ['source-visual-weights'] },
+  { id: 'perspective_lenses', name: 'Perspective Lenses', shortDescription: 'Different information views of one entity.', classification: 'SIMULATION_ABSTRACTION', parentIds: ['higher_self'], childIds: [], sourceRecordIds: ['source-perspective-lenses'] },
+];

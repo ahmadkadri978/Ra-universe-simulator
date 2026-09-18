@@ -1,6 +1,8 @@
 import type { OntologyConcept } from './types.js';
+import { phase3Concepts } from './phase3.js';
 
 export const ontologyConcepts: readonly OntologyConcept[] = [
+  ...phase3Concepts,
   {
     id: 'intelligent_infinity',
     name: 'Intelligent Infinity',

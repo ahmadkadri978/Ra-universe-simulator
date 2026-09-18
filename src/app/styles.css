@@ -16,9 +16,10 @@
 html, body, #root { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 body { min-width: 320px; background: #02050b; }
 button { font: inherit; }
+.canvas-fallback { position: absolute; top: 45%; left: 20%; right: 20%; color: #b2c4be; text-align: center; font-size: 12px; }
 
 .phase2-shell { position: relative; width: 100%; height: 100%; overflow: hidden; background: #02050b; }
-.universe-canvas-wrap { position: absolute; inset: 0; }
+.universe-canvas-wrap { position: absolute; inset: 0; z-index: 0; }
 .universe-canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
 .cinematic-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 48% 46%, transparent 28%, rgba(2,5,11,.10) 52%, rgba(0,0,0,.74) 100%); }
 

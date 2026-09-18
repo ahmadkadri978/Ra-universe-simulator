@@ -1,5 +1,7 @@
 import type { ConceptId } from '../../domain/ontology/types.js';
 import type { EvidenceClass } from '../../sources/types.js';
+import type { Phase3View } from './phase3Views.js';
+import type { PerspectiveMode } from '../../domain/timeSpace/types.js';
 
 export type UniverseScaleId =
   | 'infinity'
@@ -36,5 +38,18 @@ export interface UniverseNavigationState {
   history: UniverseScaleId[];
   selectedObjectId: string | null;
   traveling: boolean;
+  journeyProgress: number;
+  phase3View: Phase3View | null;
+  perspective: PerspectiveMode;
+  past: NavigationContext[];
+  future: NavigationContext[];
+}
+
+export interface NavigationContext {
+  activeScaleId: UniverseScaleId;
+  phase3View: Phase3View | null;
+  perspective: PerspectiveMode;
+  selectedObjectId: string | null;
+  history: UniverseScaleId[];
   journeyProgress: number;
 }

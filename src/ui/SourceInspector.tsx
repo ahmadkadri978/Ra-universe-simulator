@@ -40,7 +40,7 @@ export function SourceInspector({ conceptId }: { conceptId: ConceptId | null }) 
             <div className="reference-list">
               {record.references.map((reference) => (
                 <div key={`${reference.session}-${reference.question}`} className="reference-chip">
-                  <span>Session {reference.session}.{reference.question}</span>
+                  <a href={`https://www.lawofone.info/s/${reference.session}#${String(reference.question).split('-')[0]}`} target="_blank" rel="noreferrer">Session {reference.session}.{reference.question} ↗</a>
                   <small>{reference.note}</small>
                 </div>
               ))}

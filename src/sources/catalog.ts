@@ -1,6 +1,8 @@
 import type { SourceRecord } from './types.js';
+import { phase3Sources } from './concepts/phase3.js';
 
 export const sourceCatalog: readonly SourceRecord[] = [
+  ...phase3Sources,
   {
     id: 'source-intelligent-infinity',
     conceptId: 'intelligent_infinity',

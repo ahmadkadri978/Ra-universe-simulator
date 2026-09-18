@@ -1,14 +1,14 @@
 {
   "name": "law-of-one-ontology-simulator",
-  "version": "0.6.0-phase2",
+  "version": "0.7.0-phase3",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "dev": "node scripts/run-tool.mjs vite",
+    "build": "tsc --noEmit && node scripts/run-tool.mjs vite build",
+    "preview": "node scripts/run-tool.mjs vite preview",
+    "test": "npm run verify:phase3 && node scripts/run-tool.mjs vitest run src/ --pool=threads --maxWorkers=1",
+    "test:watch": "node scripts/run-tool.mjs vitest src/ --pool=threads",
     "typecheck": "tsc --noEmit",
     "typecheck:domain": "tsc -p tsconfig.domain.json --noEmit",
     "build:domain:offline": "node -e \"require('node:fs').rmSync('.offline-build', { recursive: true, force: true })\" && tsc -p tsconfig.domain.json",
@@ -18,7 +18,8 @@
     "build:phase2-logic:offline": "node -e \"require('node:fs').rmSync('.phase2-build', { recursive: true, force: true })\" && tsc -p tsconfig.phase2-logic.json",
     "test:phase2:offline": "npm run build:phase2-logic:offline && node tests/phase2-navigation.test.mjs",
     "verify:phase2:structure": "node scripts/verify-phase2.mjs",
-    "verify:phase2": "npm run verify:phase1 && npm run test:phase2:offline && npm run verify:phase2:structure"
+    "verify:phase2": "npm run verify:phase1 && npm run test:phase2:offline && npm run verify:phase2:structure",
+    "verify:phase3": "npm run typecheck && npm run verify:phase2 && node tests/phase3.test.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
@@ -30,12 +31,17 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@types/node": "^22.20.3",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.170.0",
-    "@vitejs/plugin-react": "^4.3.3",
+    "@vitejs/plugin-react": "4.7.0",
+    "esbuild-wasm": "0.25.12",
     "typescript": "^5.8.3",
-    "vite": "^5.4.10",
-    "vitest": "^2.1.4"
+    "vite": "6.4.3",
+    "vitest": "4.1.11"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

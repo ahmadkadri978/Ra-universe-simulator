@@ -55,21 +55,19 @@ const importPattern = /(?:from\s+|import\s*)['"]([^'"]+)['"]/g;
 
 for (const file of sourceFiles) {
   const text = await readFile(file, 'utf8');
-  const relativePath = path.relative(root, file);
+  const relativePath = path.relative(root, file).split(path.sep).join('/');
 
   // Pure layers may not depend on presentation frameworks.
   if (
     relativePath.startsWith('src/domain/') ||
     relativePath.startsWith('src/sources/') ||
-    relativePath.startsWith('src/simulation/engine/') ||
-    relativePath.startsWith('src/simulation/events/') ||
-    relativePath.startsWith('src/simulation/rules/') ||
-    relativePath.startsWith('src/simulation/state/') ||
-    relativePath.startsWith('src/simulation/utils/')
+    (relativePath.startsWith('src/simulation/') && !relativePath.startsWith('src/simulation/store/'))
   ) {
     if (/from\s+['"](?:react|three|@react-three|zustand)/.test(text)) {
       throw new Error(`Presentation dependency leaked into pure layer: ${relativePath}`);
     }
+    if (/Math\.random\s*\(/.test(text)) throw new Error(`Unseeded randomness in pure layer: ${relativePath}`);
+    if (/from\s+['"].*(?:\/visual\/|\/ui\/|\/app\/)/.test(text)) throw new Error(`Presentation import in pure layer: ${relativePath}`);
   }
 
   let match;
